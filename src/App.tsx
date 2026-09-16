@@ -33,25 +33,29 @@ function App() {
     <main>
       <header className="topbar">
         <a className="brand" href="#top" aria-label="RepoQuest home">
-          <span className="brand-mark">RQ</span>
-          <span>REPOQUEST</span>
+          <span className="brand-mark"><i />RQ</span>
+          <span>RepoQuest<small>CODE VALLEY</small></span>
         </a>
         <div className="top-actions">
-          <span className="online-dot" /> PUBLIC REPOS
-          <a href="https://github.com/Haotian14" target="_blank" rel="noreferrer">GITHUB ↗</a>
+          <span className="season-card"><b>SPRING</b><em>01</em></span>
+          <span className="online-dot" /> PUBLIC WORLDS
+          <a href="https://github.com/Haotian14/RepoQuest" target="_blank" rel="noreferrer">GITHUB ↗</a>
         </div>
       </header>
 
       <section className="hero" id="top">
-        <div>
-          <p className="eyebrow">A NEW WAY TO READ CODE</p>
-          <h1>YOUR REPOSITORY<br /><em>IS A WORLD.</em></h1>
-          <p className="subtitle">Paste a public GitHub repository. RepoQuest transforms its files and folders into an explorable pixel map.</p>
+        <div className="hero-copy">
+          <div className="hero-leaf left" />
+          <div className="hero-leaf right" />
+          <p className="eyebrow">WELCOME, EXPLORER!</p>
+          <h1>Every repository<br /><em>has a story.</em></h1>
+          <p className="subtitle">Turn folders into villages, files into landmarks, and your codebase into a cozy world worth exploring.</p>
         </div>
         <form onSubmit={explore} className="repo-form">
-          <label htmlFor="repository">ENTER A REPOSITORY</label>
+          <div className="form-ribbon">START A NEW JOURNEY</div>
+          <label htmlFor="repository">Which repository shall we explore?</label>
           <div className="input-row">
-            <span>⌘</span>
+            <span>⌂</span>
             <input
               id="repository"
               value={query}
@@ -59,16 +63,16 @@ function App() {
               placeholder="owner/repository"
               autoComplete="off"
             />
-            <button disabled={loading}>{loading ? 'GENERATING…' : 'EXPLORE →'}</button>
+            <button disabled={loading}>{loading ? 'PLANTING…' : 'EXPLORE →'}</button>
           </div>
           {error && <p className="error" role="alert">⚠ {error}</p>}
-          <p className="form-note">No login required · Public repositories only · GitHub rate limits apply</p>
+          <p className="form-note">Public repositories only · No sign-in needed</p>
         </form>
       </section>
 
       <section className="repo-banner">
         <div>
-          <span className="repo-owner">{repository.owner} /</span>
+          <span className="repo-owner">NOW EXPLORING · {repository.owner} /</span>
           <h2>{repository.name}</h2>
           <p>{repository.description}</p>
         </div>
@@ -86,8 +90,8 @@ function App() {
       </section>
 
       <footer>
-        <span>BUILT FOR CURIOUS DEVELOPERS</span>
-        <span>RepoQuest v0.1 · MIT</span>
+        <span>🌱 BUILT FOR CURIOUS DEVELOPERS</span>
+        <span>RepoQuest v0.2 · MADE WITH PATIENCE</span>
       </footer>
     </main>
   )

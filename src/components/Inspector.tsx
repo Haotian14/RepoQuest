@@ -5,16 +5,16 @@ export function Inspector({ district }: { district?: District }) {
   if (!district) {
     return (
       <aside className="inspector empty">
-        <div className="quest-icon">?</div>
+        <div className="quest-icon">⌕</div>
         <h2>Choose your destination</h2>
-        <p>Every building represents a top-level folder. Larger buildings contain more files.</p>
+        <p>Each building is a folder in this little valley. Larger buildings hold more files and secrets.</p>
       </aside>
     )
   }
 
   return (
     <aside className="inspector">
-      <div className="inspector-kicker">DISTRICT DISCOVERED</div>
+      <div className="inspector-kicker">✦ DISTRICT DISCOVERED ✦</div>
       <h2>{district.label}</h2>
       <div className="stats-grid">
         <div><strong>{district.fileCount}</strong><span>files</span></div>
