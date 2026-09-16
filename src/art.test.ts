@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildingArchetype } from './art'
+import { buildingArchetype, explorerDirectionRow } from './art'
 
 describe('buildingArchetype', () => {
   it('maps important repository folders to distinct district types', () => {
@@ -14,5 +14,9 @@ describe('buildingArchetype', () => {
     const artwork = buildingArchetype('features', 'features')
     expect(artwork.marker).toBeTruthy()
     expect(artwork.main).toMatch(/\.png$/)
+  })
+
+  it('maps LPC sprite rows to their real facing directions', () => {
+    expect(explorerDirectionRow).toEqual({ up: 0, right: 1, down: 2, left: 3 })
   })
 })

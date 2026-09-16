@@ -2,7 +2,8 @@ import type { District, RepoFile, Repository } from '../types'
 
 const COLORS = ['#f59e0b', '#38bdf8', '#a78bfa', '#fb7185', '#34d399', '#f472b6', '#facc15', '#60a5fa']
 const POSITIONS = [
-  [29, 19], [50, 19], [70, 20], [23, 45], [50, 43], [69, 45], [27, 72], [50, 72], [69, 72],
+  // Coordinates represent each building's ground-contact point, not its center.
+  [29, 35], [50, 35], [70, 36], [23, 61], [50, 59], [69, 61], [27, 88], [50, 88], [69, 88],
 ]
 
 export function buildDistricts(repository: Repository): District[] {

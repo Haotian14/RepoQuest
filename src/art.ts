@@ -4,6 +4,7 @@ import siloSlate from './assets/lpc/farm/silo-slate.png'
 import siloThatch from './assets/lpc/farm/silo-thatch.png'
 import coop from './assets/lpc/farm/coop.png'
 import player from './assets/lpc/character/explorer-walk.png'
+import type { Direction } from './lib/movement'
 
 export type BuildingArchetype = {
   className: string
@@ -29,3 +30,9 @@ export function buildingArchetype(path: string, label: string): BuildingArchetyp
 }
 
 export const explorerSprite = player
+export const explorerDirectionRow: Record<Direction, number> = {
+  up: 0,
+  right: 1,
+  down: 2,
+  left: 3,
+}

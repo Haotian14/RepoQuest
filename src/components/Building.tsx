@@ -1,5 +1,6 @@
 import type { District } from '../types'
 import { buildingArchetype } from '../art'
+import { depthForY } from '../lib/depth'
 
 type Props = {
   district: District
@@ -14,7 +15,7 @@ export function Building({ district, active, nearby, onSelect }: Props) {
   return (
     <button
       className={`building level-${district.level} ${artwork.className}${active ? ' active' : ''}${nearby ? ' nearby' : ''}`}
-      style={{ left: `${district.x}%`, top: `${district.y}%`, zIndex: 100 + Math.round(district.y) } as React.CSSProperties}
+      style={{ left: `${district.x}%`, top: `${district.y}%`, zIndex: depthForY(district.y) } as React.CSSProperties}
       onClick={(event) => {
         onSelect(district)
         if (event.detail > 0) event.currentTarget.blur()

@@ -1,7 +1,8 @@
 import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
 import type { District } from '../types'
 import { movePlayer, nearestDistrict, type Direction } from '../lib/movement'
-import { explorerSprite } from '../art'
+import { depthForY } from '../lib/depth'
+import { explorerDirectionRow, explorerSprite } from '../art'
 import { Building } from './Building'
 
 type Props = {
@@ -18,7 +19,6 @@ export function WorldMap({ districts, selected, onSelect }: Props) {
   const viewportRef = useRef<HTMLDivElement>(null)
   const walkTimerRef = useRef<number | undefined>(undefined)
   const nearby = useMemo(() => nearestDistrict(position, districts), [districts, position])
-  const directionRow: Record<Direction, number> = { up: 0, left: 1, down: 2, right: 3 }
 
   function move(direction: Direction) {
     setFacing(direction)
@@ -89,7 +89,7 @@ export function WorldMap({ districts, selected, onSelect }: Props) {
           ))}
           <div
             className={`player facing-${facing}`}
-            style={{ left: `${position.x}%`, top: `${position.y}%`, zIndex: 100 + Math.round(position.y) }}
+            style={{ left: `${position.x}%`, top: `${position.y}%`, zIndex: depthForY(position.y) }}
             aria-label="Explorer character"
           >
             <span
@@ -97,7 +97,7 @@ export function WorldMap({ districts, selected, onSelect }: Props) {
               aria-hidden="true"
               style={{
                 backgroundImage: `url(${explorerSprite})`,
-                backgroundPosition: `${-walkFrame * 48}px ${-directionRow[facing] * 64}px`,
+                backgroundPosition: `${-walkFrame * 48}px ${-explorerDirectionRow[facing] * 64}px`,
               }}
             />
           </div>
