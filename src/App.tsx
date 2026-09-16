@@ -1,4 +1,5 @@
 import { FormEvent, useMemo, useState } from 'react'
+import { BossArena } from './components/BossArena'
 import { Inspector } from './components/Inspector'
 import { QuestBoard } from './components/QuestBoard'
 import { WorldMap } from './components/WorldMap'
@@ -52,6 +53,7 @@ function App() {
         <div className="top-actions">
           <a className="world-link" href="#world">ENTER THE VALLEY</a>
           <a className="quest-link" href="#quests">QUEST LOG</a>
+          <a className="arena-link" href="#arena">BOSS ARENA</a>
           <a className="github-link" href="https://github.com/Haotian14/RepoQuest" target="_blank" rel="noreferrer">GITHUB <span>↗</span></a>
         </div>
       </header>
@@ -117,6 +119,7 @@ function App() {
         </section>
 
         <QuestBoard repository={repository} />
+        <BossArena repository={repository} />
       </section>
 
       <footer>

@@ -71,9 +71,9 @@ main { min-height: 100vh; overflow: hidden; background: #173b2d; }
 
 .top-actions { display: flex; align-items: center; gap: 14px; }
 .top-actions a { color: #fff0bb; text-decoration: none; font: 600 10px/1 'DM Mono', monospace; letter-spacing: .12em; }
-.world-link, .quest-link { padding: 14px 16px; border: 1px solid rgba(255, 240, 187, .36); background: rgba(21, 47, 38, .35); backdrop-filter: blur(8px); }
+.world-link, .quest-link, .arena-link { padding: 14px 16px; border: 1px solid rgba(255, 240, 187, .36); background: rgba(21, 47, 38, .35); backdrop-filter: blur(8px); }
 .github-link { padding: 14px 16px; color: #38231d !important; background: #f1ce73; border: 3px solid #40261f; box-shadow: 3px 3px 0 rgba(24, 22, 16, .55); }
-.github-link:hover, .world-link:hover, .quest-link:hover { translate: 0 -2px; }
+.github-link:hover, .world-link:hover, .quest-link:hover, .arena-link:hover { translate: 0 -2px; }
 
 .hero {
   position: relative;
@@ -263,6 +263,60 @@ h1 em { color: #f4d169; font-style: normal; }
 .quest-empty b { font: 700 18px 'Pixelify Sans', monospace; }
 .quest-empty p { margin: 0; color: #c3aa78; font-size: 12px; }
 
+.boss-arena { width: min(1480px, 100%); margin: 42px auto 0; padding: 34px; color: #f7e9be; background: radial-gradient(circle at 50% 0, rgba(139, 67, 57, .3), transparent 38%), repeating-linear-gradient(90deg, rgba(255, 255, 255, .018) 0 2px, transparent 2px 15px), #241f22; border: 8px solid #2b1b18; box-shadow: inset 0 0 0 4px #754438, 12px 14px 0 rgba(9, 27, 21, .42); }
+.arena-heading { margin-bottom: 26px; display: flex; justify-content: space-between; align-items: end; gap: 28px; }
+.arena-heading h2 { margin: 8px 0; color: #fff0c0; font: 700 clamp(32px, 4vw, 48px)/1 'Pixelify Sans', monospace; text-shadow: 0 4px #100e10; }
+.arena-heading p { margin: 0; color: #bfae9c; font-size: 13px; }
+.arena-score { display: flex; gap: 8px; }
+.arena-score div { min-width: 86px; padding: 10px 12px; display: grid; gap: 4px; color: #f3dba0; text-align: center; background: #4c302b; border: 3px solid #130f10; box-shadow: inset 0 0 0 2px #875043; }
+.arena-score strong { font: 700 18px 'Pixelify Sans', monospace; }
+.arena-score span { color: #c9ad8a; font: 600 8px 'DM Mono', monospace; letter-spacing: .08em; }
+.boss-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.boss-card { position: relative; overflow: hidden; min-width: 0; padding: 18px; color: #f4dfb4; background: linear-gradient(145deg, rgba(255, 255, 255, .04), transparent 42%), #392a2a; border: 5px solid #120f10; box-shadow: inset 0 0 0 3px #75463c, 6px 7px 0 rgba(8, 8, 8, .42); }
+.boss-card.pull_request { background: linear-gradient(145deg, rgba(255, 255, 255, .045), transparent 42%), #272f34; }
+.boss-card.pull_request { box-shadow: inset 0 0 0 3px #4b6e73, 6px 7px 0 rgba(8, 8, 8, .42); }
+.boss-card::after { content: ''; position: absolute; right: -24px; top: -24px; width: 72px; height: 72px; rotate: 45deg; background: #8b493e; border: 4px solid #171011; }
+.boss-card.pull_request::after { background: #49737b; }
+.boss-card-top { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 12px; color: #dbbd91; font: 600 8px 'DM Mono', monospace; letter-spacing: .06em; }
+.boss-card-top b { color: #f2b86f; font-size: 8px; }
+.boss-card.pull_request .boss-card-top b { color: #82c9c1; }
+.boss-body { margin-top: 20px; display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 16px; align-items: center; }
+.boss-sprite { position: relative; width: 68px; height: 65px; background: #a94b45; border: 5px solid #1b1112; border-radius: 45% 45% 35% 35%; box-shadow: inset 0 -12px #783532, 5px 5px 0 rgba(11, 9, 10, .45); image-rendering: pixelated; }
+.pull_request .boss-sprite { background: #4d9490; box-shadow: inset 0 -12px #356b6d, 5px 5px 0 rgba(11, 9, 10, .45); }
+.boss-sprite::before, .boss-sprite::after { content: ''; position: absolute; top: -15px; width: 18px; height: 22px; background: #d17956; border: 5px solid #1b1112; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.boss-sprite::before { left: 3px; rotate: -18deg; }
+.boss-sprite::after { right: 3px; rotate: 18deg; }
+.pull_request .boss-sprite::before, .pull_request .boss-sprite::after { background: #76c1ad; }
+.boss-sprite i, .boss-sprite span { position: absolute; top: 24px; width: 8px; height: 10px; background: #ffe69b; border: 3px solid #231517; }
+.boss-sprite i { left: 13px; }
+.boss-sprite span { right: 13px; }
+.boss-copy { min-width: 0; }
+.boss-copy h3 { margin: 0 0 9px; overflow: hidden; color: #fff0c0; font: 700 16px/1.22 'Pixelify Sans', monospace; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.boss-copy > p { margin: 0; color: #a99684; font: 600 8px 'DM Mono', monospace; letter-spacing: .04em; }
+.boss-labels { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+.boss-labels span { max-width: 120px; padding: 4px 6px; overflow: hidden; color: #e3c6a1; background: #5c3a34; border: 2px solid #1e1515; font: 600 7px 'DM Mono', monospace; white-space: nowrap; text-overflow: ellipsis; }
+.pull_request .boss-labels span { background: #34575a; }
+.boss-health { margin-top: 20px; }
+.boss-health > div:first-child { margin-bottom: 6px; display: flex; justify-content: space-between; color: #d5b790; font: 700 8px 'DM Mono', monospace; }
+.boss-health > div:first-child b { color: #ef806c; }
+.boss-health-track { height: 15px; padding: 3px; background: #171112; border: 3px solid #0c090a; }
+.boss-health-track i { display: block; height: 100%; background: #c65045; box-shadow: inset 0 -3px #8f342f; transition: width .24s steps(6); }
+.pull_request .boss-health-track i { background: #55aaa3; box-shadow: inset 0 -3px #367875; }
+.boss-actions { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.boss-actions a, .boss-actions button { min-height: 42px; padding: 9px 10px; display: grid; place-items: center; color: #fbe6ad; background: #74433a; border: 3px solid #171112; box-shadow: inset 0 -4px #4d2c28; text-decoration: none; font: 700 8px 'DM Mono', monospace; cursor: pointer; }
+.boss-actions button { color: #3d281f; background: #d8ad59; box-shadow: inset 0 -4px #a4743c; }
+.boss-actions a:hover, .boss-actions button:hover { filter: brightness(1.12); }
+.boss-actions a:focus-visible, .boss-actions button:focus-visible { outline: 4px solid #f0d27d; outline-offset: 2px; }
+.boss-card > small { margin-top: 12px; display: block; color: #8f8075; font: 500 7px 'DM Mono', monospace; text-align: center; }
+.boss-card.defeated { background: linear-gradient(145deg, rgba(255, 255, 255, .05), transparent 42%), #29362d; box-shadow: inset 0 0 0 3px #52774e, 6px 7px 0 rgba(8, 8, 8, .42); }
+.boss-card.defeated::before { content: 'VICTORY'; position: absolute; z-index: 2; right: 18px; top: 42px; padding: 5px 8px; color: #f9eab3; background: #4d804c; border: 3px solid #182618; rotate: -5deg; font: 700 9px 'Pixelify Sans', monospace; }
+.boss-card.defeated .boss-sprite { filter: grayscale(.55); rotate: 6deg; translate: 0 5px; opacity: .7; }
+.boss-card.defeated .boss-health-track i { width: 0 !important; }
+.arena-empty { grid-column: 1 / -1; min-height: 280px; display: grid; place-items: center; align-content: center; gap: 10px; color: #d6c39f; text-align: center; border: 4px dashed #66463e; }
+.arena-empty > span { color: #dcae5b; font-size: 38px; }
+.arena-empty b { font: 700 20px 'Pixelify Sans', monospace; }
+.arena-empty p { margin: 0; color: #978879; font-size: 12px; }
+
 footer { padding: 28px clamp(24px, 5vw, 72px); display: flex; justify-content: space-between; color: #bcae82; background: #102820; border-top: 1px solid #31533e; font: 500 9px 'DM Mono', monospace; letter-spacing: .13em; }
 
 @media (max-width: 1100px) {
@@ -272,6 +326,7 @@ footer { padding: 28px clamp(24px, 5vw, 72px); display: flex; justify-content: s
   .repo-metrics { display: grid; grid-template-columns: repeat(2, 1fr); }
   .quest-board { grid-template-columns: 320px minmax(0, 1fr); }
   .quest-list { grid-template-columns: 1fr; }
+  .boss-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 850px) {
@@ -290,6 +345,7 @@ footer { padding: 28px clamp(24px, 5vw, 72px); display: flex; justify-content: s
   .quest-board { grid-template-columns: 1fr; }
   .quest-summary { border-right: 0; border-bottom: 7px solid #2b1b18; box-shadow: inset 0 -4px #9b6039; }
   .quest-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .arena-heading { align-items: flex-start; flex-direction: column; }
   .world-stage { width: 100%; }
   .world-viewport { height: 640px; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; scrollbar-color: #b47a43 #2f211b; }
   .world { width: 960px; height: 640px; aspect-ratio: auto; }
@@ -303,7 +359,7 @@ footer { padding: 28px clamp(24px, 5vw, 72px); display: flex; justify-content: s
   .brand-mark { width: 42px; height: 42px; }
   .github-link { padding: 12px; font-size: 0 !important; }
   .github-link span { font-size: 12px; }
-  .quest-link { display: none; }
+  .quest-link, .arena-link { display: none; }
   .hero { min-height: 780px; padding-inline: 20px; background-position: 67% center; }
   h1 { font-size: clamp(50px, 15vw, 66px); }
   .subtitle { font-size: 15px; }
@@ -324,6 +380,10 @@ footer { padding: 28px clamp(24px, 5vw, 72px); display: flex; justify-content: s
   .commit-quest { grid-template-columns: 44px minmax(0, 1fr); padding: 16px 14px; }
   .quest-check { width: 44px; height: 44px; }
   .commit-quest > a { grid-column: 2; justify-self: start; }
+  .boss-arena { padding: 24px 15px; border-width: 5px; }
+  .arena-score { width: 100%; }
+  .arena-score div { min-width: 0; flex: 1; padding-inline: 6px; }
+  .boss-grid { grid-template-columns: 1fr; }
   .map-compass { left: 12px; top: 12px; scale: .82; transform-origin: top left; }
   .proximity-hint { top: 12px; max-width: calc(100% - 90px); text-align: center; line-height: 1.55; }
   .map-hint { display: none; }

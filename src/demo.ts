@@ -24,4 +24,9 @@ export const demoRepository: Repository = {
     { sha: '50e77b84cad3593c9b8b18a7419996e8ed777fde', message: 'feat: deliver polished RepoQuest pixel world', author: 'Haotian14', date: '2026-09-16T07:49:00Z', url: 'https://github.com/Haotian14/RepoQuest/commit/50e77b84cad3593c9b8b18a7419996e8ed777fde' },
     { sha: '455b66c52b38fcf3d759f8af1aeebfd8f1a82935', message: 'feat: refine pixel world with CC0 art packs', author: 'Haotian14', date: '2026-09-16T06:00:00Z', url: 'https://github.com/Haotian14/RepoQuest/commit/455b66c52b38fcf3d759f8af1aeebfd8f1a82935' },
   ],
+  bosses: [
+    { id: 'issue-12', number: 12, kind: 'issue', title: 'Add shareable map screenshots', author: 'pixel-ranger', updatedAt: '2026-09-15T12:00:00Z', comments: 8, labels: ['feature', 'good first quest'], url: 'https://github.com/Haotian14/RepoQuest/issues' },
+    { id: 'pull_request-11', number: 11, kind: 'pull_request', title: 'Improve touch controls on small screens', author: 'map-maker', updatedAt: '2026-09-14T09:30:00Z', comments: 4, labels: ['mobile', 'ui'], url: 'https://github.com/Haotian14/RepoQuest/pulls' },
+    { id: 'issue-9', number: 9, kind: 'issue', title: 'Support repositories with very large trees', author: 'code-scout', updatedAt: '2026-09-12T04:20:00Z', comments: 12, labels: ['performance'], url: 'https://github.com/Haotian14/RepoQuest/issues' },
+  ],
 }

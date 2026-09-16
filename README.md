@@ -18,6 +18,7 @@ RepoQuest transforms the structure of a public GitHub repository into a playful 
 - Approach buildings and press `E` to explore folders
 - Inspect top-level folders, file counts, sizes, and nearby files
 - Turn recent commits into reviewable quests with local progress
+- Face open issues and pull requests as locally tracked boss battles
 - Responsive interface for desktop and mobile
 - No backend and no stored repository data
 
@@ -56,7 +57,7 @@ npm run preview   # preview the production build
 - [x] Pixel districts and file inspector
 - [x] Walkable character and keyboard navigation
 - [x] Commit-history quests
-- [ ] Issue and pull-request boss battles
+- [x] Issue and pull-request boss battles
 - [ ] Shareable map screenshots
 - [ ] Optional AI explanations
 
