@@ -17,6 +17,7 @@ RepoQuest transforms the structure of a public GitHub repository into a playful 
 - Walk around with WASD, arrow keys, or touch controls
 - Approach buildings and press `E` to explore folders
 - Inspect top-level folders, file counts, sizes, and nearby files
+- Turn recent commits into reviewable quests with local progress
 - Responsive interface for desktop and mobile
 - No backend and no stored repository data
 
@@ -54,7 +55,7 @@ npm run preview   # preview the production build
 - [x] Public repository exploration
 - [x] Pixel districts and file inspector
 - [x] Walkable character and keyboard navigation
-- [ ] Commit-history quests
+- [x] Commit-history quests
 - [ ] Issue and pull-request boss battles
 - [ ] Shareable map screenshots
 - [ ] Optional AI explanations
@@ -67,4 +68,4 @@ Ideas, bug reports, and pull requests are welcome. Please run `npm test` and `np
 
 [MIT](LICENSE)
 
-Pixel artwork is drawn from CC0 Kenney asset packs. See [THIRD_PARTY_ASSETS.md](./THIRD_PARTY_ASSETS.md) for sources and license details.
+Pixel buildings and the explorer use openly licensed LPC artwork. See [THIRD_PARTY_ASSETS.md](./THIRD_PARTY_ASSETS.md) for sources, modifications, and license details.

@@ -4,6 +4,15 @@ export type RepoFile = {
   type: 'blob' | 'tree'
 }
 
+export type CommitQuest = {
+  sha: string
+  message: string
+  author: string
+  avatarUrl?: string
+  date: string
+  url: string
+}
+
 export type Repository = {
   owner: string
   name: string
@@ -12,6 +21,7 @@ export type Repository = {
   language: string
   defaultBranch: string
   files: RepoFile[]
+  commits: CommitQuest[]
 }
 
 export type District = {

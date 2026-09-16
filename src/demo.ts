@@ -18,4 +18,10 @@ export const demoRepository: Repository = {
   language: 'TypeScript',
   defaultBranch: 'main',
   files: demoPaths.map(([path, size]) => ({ path, size, type: 'blob' })),
+  commits: [
+    { sha: 'ae386be6c92bbbbcee8c2674ccbf8707a3c0a379', message: 'feat: fade buildings when explorer walks behind', author: 'Haotian14', date: '2026-09-16T08:25:00Z', url: 'https://github.com/Haotian14/RepoQuest/commit/ae386be6c92bbbbcee8c2674ccbf8707a3c0a379' },
+    { sha: '41b10b219e19c51180371c78e339c19c421b1c4a', message: 'fix: correct explorer facing and world occlusion', author: 'Haotian14', date: '2026-09-16T08:10:00Z', url: 'https://github.com/Haotian14/RepoQuest/commit/41b10b219e19c51180371c78e339c19c421b1c4a' },
+    { sha: '50e77b84cad3593c9b8b18a7419996e8ed777fde', message: 'feat: deliver polished RepoQuest pixel world', author: 'Haotian14', date: '2026-09-16T07:49:00Z', url: 'https://github.com/Haotian14/RepoQuest/commit/50e77b84cad3593c9b8b18a7419996e8ed777fde' },
+    { sha: '455b66c52b38fcf3d759f8af1aeebfd8f1a82935', message: 'feat: refine pixel world with CC0 art packs', author: 'Haotian14', date: '2026-09-16T06:00:00Z', url: 'https://github.com/Haotian14/RepoQuest/commit/455b66c52b38fcf3d759f8af1aeebfd8f1a82935' },
+  ],
 }

@@ -1,5 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react'
 import { Inspector } from './components/Inspector'
+import { QuestBoard } from './components/QuestBoard'
 import { WorldMap } from './components/WorldMap'
 import { demoRepository } from './demo'
 import { fetchRepository } from './lib/github'
@@ -50,6 +51,7 @@ function App() {
         </a>
         <div className="top-actions">
           <a className="world-link" href="#world">ENTER THE VALLEY</a>
+          <a className="quest-link" href="#quests">QUEST LOG</a>
           <a className="github-link" href="https://github.com/Haotian14/RepoQuest" target="_blank" rel="noreferrer">GITHUB <span>↗</span></a>
         </div>
       </header>
@@ -113,6 +115,8 @@ function App() {
           <WorldMap districts={districts} selected={selected} onSelect={selectDistrict} />
           <Inspector district={selected} />
         </section>
+
+        <QuestBoard repository={repository} />
       </section>
 
       <footer>
