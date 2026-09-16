@@ -20,6 +20,7 @@ RepoQuest transforms the structure of a public GitHub repository into a playful 
 - Turn recent commits into reviewable quests with local progress
 - Face open issues and pull requests as locally tracked boss battles
 - Export the complete repository valley as a high-resolution PNG card
+- Open a local smart guide for district roles, key files, and a suggested reading route
 - Responsive interface for desktop and mobile
 - No backend and no stored repository data
 
@@ -40,6 +41,7 @@ Open `http://localhost:5173` and enter a repository as either `owner/repository`
 2. The recursive Git tree is grouped by top-level folder.
 3. The largest groups are assigned districts in the world.
 4. File count controls building level; file size powers district statistics.
+5. Local heuristics use paths, names, file types, and sizes to explain each district without uploading code.
 
 Unauthenticated GitHub API requests are rate limited. A future release will support optional local tokens and private repositories.
 
@@ -60,7 +62,7 @@ npm run preview   # preview the production build
 - [x] Commit-history quests
 - [x] Issue and pull-request boss battles
 - [x] Shareable map screenshots
-- [ ] Optional AI explanations
+- [x] Local smart code explanations
 
 ## Contributing
 

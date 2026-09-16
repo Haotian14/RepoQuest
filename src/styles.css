@@ -220,6 +220,29 @@ h1 em { color: #f4d169; font-style: normal; }
 .file-row small { color: #654632; font-size: 10px; }
 .file-gem { width: 9px; height: 9px; background: #4ea2b4; border: 2px solid #32677d; box-shadow: 2px 2px #d5e6d6; }
 .more-files { margin-top: 15px; color: #4f7e3c; font: 700 9px 'DM Mono', monospace; }
+.guide-toggle { width: 100%; min-height: 48px; margin-top: 24px; padding: 0; display: grid; grid-template-columns: 1fr 46px; align-items: stretch; color: #fff0b2; background: #527442; border: 4px solid #3b2a21; box-shadow: inset 0 -4px #355532, 4px 4px 0 rgba(80, 48, 29, .24); cursor: pointer; font: 700 9px 'DM Mono', monospace; letter-spacing: .06em; }
+.guide-toggle span, .guide-toggle i { display: grid; place-items: center; }
+.guide-toggle i { color: #4b3023; background: #e8c663; border-left: 4px solid #3b2a21; font: 700 20px 'Pixelify Sans', monospace; font-style: normal; }
+.guide-toggle:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.guide-toggle:active { transform: translate(2px, 2px); box-shadow: inset 0 -2px #355532, 2px 2px 0 rgba(80, 48, 29, .24); }
+.district-guide { position: relative; margin-top: 16px; padding: 20px 18px 17px; color: #e7dcae; background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .018) 0 2px, transparent 2px 8px), #203c31; border: 4px solid #36271f; box-shadow: inset 0 0 0 2px #55704d, 4px 4px 0 rgba(78, 48, 29, .22); animation: guide-unfold .18s steps(3); }
+.district-guide::before { content: ''; position: absolute; right: 12px; top: 12px; width: 8px; height: 8px; background: #e9c963; box-shadow: 0 14px #e9c963, 0 28px #e9c963; opacity: .72; }
+.guide-status { display: flex; align-items: center; gap: 7px; padding-right: 22px; color: #9ec888; font: 700 7px 'DM Mono', monospace; letter-spacing: .09em; }
+.guide-status span { width: 7px; height: 7px; background: #91c96d; border: 2px solid #385a35; box-shadow: 0 0 0 2px rgba(145, 201, 109, .16); }
+.guide-role { margin: 11px 0 8px; color: #ffe18a; font: 700 18px/1 'Pixelify Sans', monospace; letter-spacing: .04em; }
+.district-guide p { max-width: none; margin: 0; color: #bdc9a8; font: 600 10px/1.65 'DM Mono', monospace; }
+.district-guide h3 { margin: 20px 0 10px; color: #f2dc99; font: 700 8px 'DM Mono', monospace; letter-spacing: .13em; text-transform: uppercase; }
+.guide-route { margin: 0; padding: 0; display: grid; gap: 8px; list-style: none; counter-reset: route; }
+.guide-route li { min-width: 0; display: grid; grid-template-columns: 27px minmax(0, 1fr); gap: 9px; align-items: start; counter-increment: route; }
+.route-number { width: 25px; height: 25px; display: grid; place-items: center; color: #4a3023; background: #e3bd58; border: 2px solid #39281f; box-shadow: 2px 2px 0 #13291f; }
+.route-number::after { content: counter(route); font: 700 10px 'DM Mono', monospace; }
+.guide-route strong { display: block; overflow: hidden; color: #f5e7b7; font: 700 9px/1.35 'DM Mono', monospace; text-overflow: ellipsis; white-space: nowrap; }
+.guide-route span { display: block; margin-top: 3px; color: #94aa8d; font: 500 8px/1.45 'DM Mono', monospace; }
+.guide-notes { margin: 0; padding: 0; display: grid; gap: 7px; list-style: none; }
+.guide-notes li { position: relative; padding-left: 13px; color: #b8c7a3; font: 500 8px/1.5 'DM Mono', monospace; }
+.guide-notes li::before { content: ''; position: absolute; left: 0; top: 5px; width: 5px; height: 5px; background: #75a95b; border: 1px solid #2d522f; }
+.guide-method { margin: 17px -18px -17px; padding: 9px 12px; color: #7f9b78; background: #172e26; border-top: 2px solid #496345; text-align: center; font: 700 6px 'DM Mono', monospace; letter-spacing: .1em; }
+@keyframes guide-unfold { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 .map-return { display: none; }
 
 .share-panel { width: min(1480px, 100%); margin: 34px auto 0; padding: 24px 28px; display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 22px; align-items: center; color: #f7e8b8; background: linear-gradient(90deg, rgba(111, 158, 84, .14), transparent 35%), #1c382d; border: 6px solid #2b1b18; box-shadow: inset 0 0 0 3px #76503a, 9px 10px 0 rgba(9, 27, 21, .36); }
