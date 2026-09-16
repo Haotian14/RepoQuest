@@ -72,7 +72,14 @@ export function BossArena({ repository }: { repository: Repository }) {
               </div>
               <div className="boss-health">
                 <div><b>HP</b><span>{victory ? 0 : threat.health} / {threat.health}</span></div>
-                <div className="boss-health-track"><i style={{ width: `${victory ? 0 : 100}%` }} /></div>
+              <div
+                className="boss-health-track"
+                role="progressbar"
+                aria-label={`${boss.title} health`}
+                aria-valuemin={0}
+                aria-valuemax={threat.health}
+                aria-valuenow={victory ? 0 : threat.health}
+              ><i style={{ width: `${victory ? 0 : 100}%` }} /></div>
               </div>
               <div className="boss-actions">
                 <a href={boss.url} target="_blank" rel="noreferrer">CHALLENGE <span>↗</span></a>

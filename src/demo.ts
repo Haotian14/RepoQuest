@@ -29,4 +29,6 @@ export const demoRepository: Repository = {
     { id: 'pull_request-11', number: 11, kind: 'pull_request', title: 'Improve touch controls on small screens', author: 'map-maker', updatedAt: '2026-09-14T09:30:00Z', comments: 4, labels: ['mobile', 'ui'], url: 'https://github.com/Haotian14/RepoQuest/pulls' },
     { id: 'issue-9', number: 9, kind: 'issue', title: 'Support repositories with very large trees', author: 'code-scout', updatedAt: '2026-09-12T04:20:00Z', comments: 12, labels: ['performance'], url: 'https://github.com/Haotian14/RepoQuest/issues' },
   ],
+  warnings: [],
+  recentChangedPaths: ['src/lib/guide.ts', 'src/components/Inspector.tsx', 'README.md'],
 }

@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react'
-import { toPng } from 'html-to-image'
 import { explorerDirectionRow, explorerSprite } from '../art'
 import { depthForY } from '../lib/depth'
 import { shareFilename } from '../lib/share'
@@ -16,6 +15,7 @@ export function ShareMap({ repository, districts }: { repository: Repository; di
     if (!cardRef.current || state === 'exporting') return
     setState('exporting')
     try {
+      const { toPng } = await import('html-to-image')
       await document.fonts?.ready
       const dataUrl = await toPng(cardRef.current, {
         width: 1200,

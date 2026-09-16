@@ -36,6 +36,8 @@ export type Repository = {
   files: RepoFile[]
   commits: CommitQuest[]
   bosses: BossEncounter[]
+  warnings: string[]
+  recentChangedPaths: string[]
 }
 
 export type District = {

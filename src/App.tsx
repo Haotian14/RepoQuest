@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BossArena } from './components/BossArena'
 import { Inspector } from './components/Inspector'
 import { QuestBoard } from './components/QuestBoard'
@@ -7,7 +7,10 @@ import { WorldMap } from './components/WorldMap'
 import { demoRepository } from './demo'
 import { fetchRepository } from './lib/github'
 import { buildDistricts } from './lib/map'
+import { clearRecentRepositories, loadRecentRepositories, recentRepositoryLabel, rememberRepository } from './lib/recent'
 import type { District, Repository } from './types'
+
+type HistoryMode = 'push' | 'replace' | 'none'
 
 function App() {
   const [query, setQuery] = useState('')
@@ -15,21 +18,78 @@ function App() {
   const [selected, setSelected] = useState<District>()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [isDemo, setIsDemo] = useState(true)
+  const [recentRepositories, setRecentRepositories] = useState(loadRecentRepositories)
+  const activeRequest = useRef<AbortController | undefined>(undefined)
+  const requestSequence = useRef(0)
   const districts = useMemo(() => buildDistricts(repository), [repository])
 
-  async function explore(event: FormEvent) {
-    event.preventDefault()
-    if (!query.trim()) return
+  const openRepository = useCallback(async (value: string, historyMode: HistoryMode = 'push') => {
+    const requestedRepository = value.trim()
+    if (!requestedRepository) return
+
+    activeRequest.current?.abort()
+    const controller = new AbortController()
+    activeRequest.current = controller
+    const sequence = ++requestSequence.current
     setLoading(true)
     setError('')
     setSelected(undefined)
+
     try {
-      setRepository(await fetchRepository(query))
+      const nextRepository = await fetchRepository(requestedRepository, controller.signal)
+      if (controller.signal.aborted || sequence !== requestSequence.current) return
+
+      const fullName = `${nextRepository.owner}/${nextRepository.name}`
+      setRepository(nextRepository)
+      setIsDemo(false)
+      setQuery(fullName)
+      setRecentRepositories(rememberRepository(nextRepository))
+
+      if (historyMode !== 'none') {
+        const nextUrl = new URL(window.location.href)
+        nextUrl.searchParams.set('repo', fullName)
+        window.history[historyMode === 'push' ? 'pushState' : 'replaceState']({}, '', nextUrl)
+      }
     } catch (reason) {
+      if (controller.signal.aborted || sequence !== requestSequence.current) return
       setError(reason instanceof Error ? reason.message : 'The expedition failed.')
     } finally {
+      if (sequence === requestSequence.current) setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    function openFromLocation() {
+      const requestedRepository = new URL(window.location.href).searchParams.get('repo')?.trim()
+      if (requestedRepository) {
+        setQuery(requestedRepository)
+        void openRepository(requestedRepository, 'replace')
+        return
+      }
+
+      activeRequest.current?.abort()
+      requestSequence.current += 1
+      setRepository(demoRepository)
+      setIsDemo(true)
+      setSelected(undefined)
+      setQuery('')
+      setError('')
       setLoading(false)
     }
+
+    openFromLocation()
+    window.addEventListener('popstate', openFromLocation)
+    return () => {
+      window.removeEventListener('popstate', openFromLocation)
+      activeRequest.current?.abort()
+      requestSequence.current += 1
+    }
+  }, [openRepository])
+
+  function explore(event: FormEvent) {
+    event.preventDefault()
+    void openRepository(query)
   }
 
   function selectDistrict(district: District) {
@@ -64,7 +124,7 @@ function App() {
           <p className="eyebrow"><span /> A GITHUB ADVENTURE</p>
           <h1>Explore code.<br /><em>Find the story.</em></h1>
           <p className="subtitle">Every repository is a place waiting to be discovered. Turn folders into villages, files into landmarks, and code into a living world.</p>
-          <form onSubmit={explore} className="repo-form">
+          <form onSubmit={explore} className="repo-form" aria-busy={loading}>
             <label htmlFor="repository">Choose a public repository</label>
             <div className="input-row">
               <span aria-hidden="true">GH</span>
@@ -74,11 +134,39 @@ function App() {
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="owner/repository"
                 autoComplete="off"
+                disabled={loading}
               />
               <button disabled={loading}>{loading ? 'BUILDING WORLD…' : 'BEGIN QUEST'}</button>
             </div>
             {error && <p className="error" role="alert">{error}</p>}
             <p className="form-note"><i /> No sign-in &nbsp;·&nbsp; Public repositories only</p>
+            {recentRepositories.length > 0 && (
+              <nav className="recent-repositories" aria-label="Recent repositories">
+                <span>RECENT EXPEDITIONS</span>
+                <div>
+                  {recentRepositories.slice(0, 3).map((recent) => {
+                    const label = recentRepositoryLabel(recent)
+                    return (
+                      <button
+                        key={label.toLowerCase()}
+                        type="button"
+                        disabled={loading}
+                        onClick={() => void openRepository(label)}
+                      >{label}</button>
+                    )
+                  })}
+                  <button
+                    className="clear-recent"
+                    type="button"
+                    disabled={loading}
+                    onClick={() => {
+                      clearRecentRepositories()
+                      setRecentRepositories([])
+                    }}
+                  >CLEAR</button>
+                </div>
+              </nav>
+            )}
           </form>
         </div>
         <div className="hero-status" aria-hidden="true">
@@ -101,6 +189,7 @@ function App() {
           <div className="repo-identity">
             <span className="repo-seal">RQ</span>
             <div>
+              <span className={`repo-mode${isDemo ? ' demo' : ''}`}>{isDemo ? 'DEMO WORLD' : 'LIVE REPOSITORY'}</span>
               <span className="repo-owner">{repository.owner} /</span>
               <h3>{repository.name}</h3>
               <p>{repository.description}</p>
@@ -114,9 +203,27 @@ function App() {
           </div>
         </section>
 
-        <section className="explorer-layout">
-          <WorldMap districts={districts} selected={selected} onSelect={selectDistrict} />
-          <Inspector district={selected} />
+        {repository.warnings.length > 0 && (
+          <aside className="repository-warnings" role="status" aria-label="Repository data warnings">
+            <strong>PARTIAL EXPEDITION DATA</strong>
+            <ul>{repository.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
+          </aside>
+        )}
+
+        <section className="explorer-layout" aria-busy={loading}>
+          {loading && (
+            <div className="world-loading" role="status" aria-live="polite">
+              <span className="loading-rune" aria-hidden="true">RQ</span>
+              <div><strong>REBUILDING THE VALLEY</strong><small>{query || 'Preparing repository data…'}</small></div>
+            </div>
+          )}
+          <WorldMap
+            districts={districts}
+            selected={selected}
+            recentChangedPaths={repository.recentChangedPaths}
+            onSelect={selectDistrict}
+          />
+          <Inspector district={selected} repository={repository} />
         </section>
 
         <ShareMap repository={repository} districts={districts} />

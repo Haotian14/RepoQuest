@@ -8,22 +8,56 @@ import { Building } from './Building'
 type Props = {
   districts: District[]
   selected?: District
+  recentChangedPaths?: string[]
   onSelect: (district: District) => void
 }
 
-export function WorldMap({ districts, selected, onSelect }: Props) {
-  const [position, setPosition] = useState({ x: 49, y: 49 })
+const INITIAL_POSITION = { x: 49, y: 49 }
+
+function districtPathForFile(path: string) {
+  const normalized = path.replace(/^\/+/, '')
+  return normalized.includes('/') ? normalized.split('/')[0] : 'root'
+}
+
+export function WorldMap({ districts, selected, recentChangedPaths = [], onSelect }: Props) {
+  const [position, setPosition] = useState(INITIAL_POSITION)
   const [facing, setFacing] = useState<Direction>('down')
   const [walkFrame, setWalkFrame] = useState(1)
+  const [controlsVisible, setControlsVisible] = useState(false)
   const worldRef = useRef<HTMLElement>(null)
   const viewportRef = useRef<HTMLDivElement>(null)
   const walkTimerRef = useRef<number | undefined>(undefined)
+  const positionRef = useRef(INITIAL_POSITION)
   const nearby = useMemo(() => nearestDistrict(position, districts), [districts, position])
+  const recentChangesByDistrict = useMemo(() => {
+    const counts = new Map<string, number>()
+    recentChangedPaths.forEach((path) => {
+      const districtPath = districtPathForFile(path)
+      counts.set(districtPath, (counts.get(districtPath) ?? 0) + 1)
+    })
+    return counts
+  }, [recentChangedPaths])
+
+  function followPlayer(nextPosition: typeof INITIAL_POSITION) {
+    const viewport = viewportRef.current
+    const world = worldRef.current
+    if (!viewport || !world || !window.matchMedia('(max-width: 850px)').matches) return
+
+    const targetLeft = (nextPosition.x / 100) * world.scrollWidth - viewport.clientWidth / 2
+    const maxLeft = Math.max(0, world.scrollWidth - viewport.clientWidth)
+    const left = Math.min(maxLeft, Math.max(0, targetLeft))
+    if (typeof viewport.scrollTo === 'function') viewport.scrollTo({ left, behavior: 'auto' })
+    else viewport.scrollLeft = left
+  }
 
   function move(direction: Direction) {
     setFacing(direction)
     setWalkFrame((current) => current === 0 ? 2 : 0)
-    setPosition((current) => movePlayer(current, direction))
+    setPosition((current) => {
+      const next = movePlayer(current, direction)
+      positionRef.current = next
+      return next
+    })
     window.clearTimeout(walkTimerRef.current)
     walkTimerRef.current = window.setTimeout(() => setWalkFrame(1), 120)
   }
@@ -33,19 +67,48 @@ export function WorldMap({ districts, selected, onSelect }: Props) {
   }
 
   useEffect(() => {
-    const viewport = viewportRef.current
-    if (!viewport) return
-    function centerMap() {
-      if (window.matchMedia('(max-width: 850px)').matches) {
-        viewport!.scrollLeft = (viewport!.scrollWidth - viewport!.clientWidth) / 2
-      }
+    function keepPlayerInView() {
+      followPlayer(positionRef.current)
     }
-    centerMap()
-    window.addEventListener('resize', centerMap)
-    return () => window.removeEventListener('resize', centerMap)
+    keepPlayerInView()
+    window.addEventListener('resize', keepPlayerInView)
+    return () => window.removeEventListener('resize', keepPlayerInView)
   }, [])
 
+  useEffect(() => {
+    followPlayer(position)
+  }, [position])
+
+  useEffect(() => {
+    const restoreMapFocus = Boolean(worldRef.current?.contains(document.activeElement))
+    positionRef.current = INITIAL_POSITION
+    setPosition(INITIAL_POSITION)
+    setFacing('down')
+    setWalkFrame(1)
+    window.clearTimeout(walkTimerRef.current)
+    const frame = window.requestAnimationFrame(() => {
+      followPlayer(INITIAL_POSITION)
+      if (restoreMapFocus) worldRef.current?.focus({ preventScroll: true })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [districts])
+
   useEffect(() => () => window.clearTimeout(walkTimerRef.current), [])
+
+  useEffect(() => {
+    const world = worldRef.current
+    if (!world) return
+    if (!('IntersectionObserver' in window)) {
+      setControlsVisible(true)
+      return
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setControlsVisible(entry.isIntersecting),
+      { threshold: 0.12 },
+    )
+    observer.observe(world)
+    return () => observer.disconnect()
+  }, [])
 
   function handleKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
       if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable="true"]')) return
@@ -85,12 +148,14 @@ export function WorldMap({ districts, selected, onSelect }: Props) {
               active={selected?.id === district.id}
               nearby={nearby?.id === district.id}
               occluded={isOccludedByBuilding(position, district)}
+              recentChangeCount={recentChangesByDistrict.get(district.path)}
               onSelect={onSelect}
             />
           ))}
           <div
             className={`player facing-${facing}`}
             style={{ left: `${position.x}%`, top: `${position.y}%`, zIndex: depthForY(position.y) }}
+            role="img"
             aria-label="Explorer character"
           >
             <span
@@ -110,7 +175,7 @@ export function WorldMap({ districts, selected, onSelect }: Props) {
       </div>
       <div className="map-compass" aria-hidden="true"><span>N</span><i /></div>
       <div className="swipe-hint" aria-hidden="true">↔ &nbsp;DRAG TO EXPLORE</div>
-      <div className="movement-controls" role="group" aria-label="Character movement controls">
+      <div className={`movement-controls${controlsVisible ? ' controls-visible' : ''}`} role="group" aria-label="Character movement controls">
         <button onClick={() => move('up')} aria-label="Move up">▲</button>
         <button onClick={() => move('left')} aria-label="Move left">◀</button>
         <button className="explore-button" onClick={explore} disabled={!nearby} aria-label="Explore nearby building">E</button>

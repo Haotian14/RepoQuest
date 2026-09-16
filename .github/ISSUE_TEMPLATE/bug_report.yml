@@ -1,0 +1,63 @@
+name: Bug report
+description: Report reproducible behavior that is not working as expected.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve RepoQuest. Please avoid sharing private repository data or access tokens.
+  - type: input
+    id: repository
+    attributes:
+      label: Public repository used
+      description: Provide an owner/repository value when it is safe and relevant.
+      placeholder: Haotian14/RepoQuest
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Enter ...
+        3. Select ...
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device type
+      options:
+        - Desktop or laptop
+        - Phone or tablet
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 152
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots, video, or console output
+      description: Drag files here if they help explain the problem. Remove tokens and personal data first.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I searched existing issues for this problem.
+          required: true
+        - label: I did not include a GitHub token, private repository data, or other secret.
+          required: true

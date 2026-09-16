@@ -1,6 +1,6 @@
 # Third-party assets
 
-RepoQuest uses a small, curated set of openly licensed game artwork. Source credits and license files are kept beside the imported assets.
+RepoQuest uses a small, curated set of openly licensed game artwork. Attribution notices are kept beside the imported assets, and the table below links to each applicable license.
 
 | Pack | Use | Local folder | License |
 | --- | --- | --- | --- |
@@ -11,4 +11,4 @@ RepoQuest uses a small, curated set of openly licensed game artwork. Source cred
 
 The LPC building images used by RepoQuest were cropped from the original `barn.png` sprite sheet so the individual cottages, silos, and coop can be composed as semantic repository districts. No artwork was recolored. The full attribution notice from the source pack is stored in `src/assets/lpc/farm/CREDITS.txt`. The explorer uses the source pack's 3-frame walk sheet without modification; its attribution is stored in `src/assets/lpc/character/CREDITS.txt`.
 
-The two large valley illustrations in `src/assets/generated` are original project artwork generated specifically for RepoQuest and do not contain assets copied from an existing game.
+The two large valley illustrations in `src/assets/generated` were generated specifically for RepoQuest in September 2026 from original art-direction prompts. They are separate from the attributed LPC sprites listed above.

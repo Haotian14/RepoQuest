@@ -36,7 +36,15 @@ export function QuestBoard({ repository }: { repository: Repository }) {
         <span className="section-index">CHRONICLE 01</span>
         <h2 id="quest-title">Commit Quest Board</h2>
         <p>Read the latest changes, follow their trail on GitHub, and mark each chapter as reviewed.</p>
-        <div className="quest-progress" aria-label={`${reviewedCount} of ${repository.commits.length} commit quests reviewed`}>
+        <div
+          className="quest-progress"
+          role="progressbar"
+          aria-label="Commit quests reviewed"
+          aria-valuemin={0}
+          aria-valuemax={repository.commits.length}
+          aria-valuenow={reviewedCount}
+          aria-valuetext={`${reviewedCount} of ${repository.commits.length} commit quests reviewed`}
+        >
           <div className="quest-progress-score"><strong>{reviewedCount}</strong><span>/ {repository.commits.length}</span></div>
           <div className="quest-progress-copy"><b>JOURNAL PROGRESS</b><span>{repository.commits.length - reviewedCount} quests remaining</span></div>
           <div className="quest-progress-track"><i style={{ width: `${progress}%` }} /></div>

@@ -1,9 +1,24 @@
 import type { BossEncounter, CommitQuest, RepoFile, Repository } from '../types'
 
-const GITHUB_REPO = /^(?:https?:\/\/github\.com\/)?([^/\s]+)\/([^/#\s]+?)(?:\.git)?\/?$/i
+const GITHUB_REPO = /^([a-z0-9_.-]+)\/([a-z0-9_.-]+?)(?:\.git)?\/?$/i
 
 export function parseRepository(value: string) {
-  const match = value.trim().match(GITHUB_REPO)
+  const input = value.trim()
+  if (/^https?:\/\//i.test(input)) {
+    try {
+      const url = new URL(input)
+      const [owner, rawName] = url.pathname.split('/').filter(Boolean)
+      const name = rawName?.replace(/\.git$/i, '')
+      if (url.hostname.toLowerCase() === 'github.com' && owner && name && GITHUB_REPO.test(`${owner}/${name}`)) {
+        return { owner: decodeURIComponent(owner), name: decodeURIComponent(name) }
+      }
+    } catch {
+      // Fall through to the shared validation error.
+    }
+    throw new Error('Use a GitHub URL or owner/repository.')
+  }
+
+  const match = input.match(GITHUB_REPO)
   if (!match) throw new Error('Use a GitHub URL or owner/repository.')
   return { owner: match[1], name: match[2] }
 }
@@ -40,6 +55,24 @@ type GitHubIssue = {
   pull_request?: unknown
 }
 
+type GitHubMetadata = {
+  default_branch?: string | null
+  description?: string | null
+  stargazers_count?: number
+  language?: string | null
+}
+
+type GitHubTree = {
+  tree?: Array<{ path?: string; size?: number; type?: string }>
+  truncated?: boolean
+}
+
+type GitHubCommitDetail = {
+  files?: Array<{ filename?: string }>
+}
+
+const FILE_LIMIT = 3000
+
 export function normalizeBosses(items: GitHubIssue[]): BossEncounter[] {
   return items.map((item) => {
     const kind = item.pull_request ? 'pull_request' : 'issue'
@@ -58,31 +91,116 @@ export function normalizeBosses(items: GitHubIssue[]): BossEncounter[] {
   })
 }
 
-export async function fetchRepository(value: string): Promise<Repository> {
+export async function fetchRepository(value: string, signal?: AbortSignal): Promise<Repository> {
   const { owner, name } = parseRepository(value)
   const headers = { Accept: 'application/vnd.github+json' }
+  const request = { headers, signal }
+  const repositoryUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`
 
-  const metadataResponse = await fetch(`https://api.github.com/repos/${owner}/${name}`, { headers })
+  const metadataResponse = await fetch(repositoryUrl, request)
   if (!metadataResponse.ok) {
     if (metadataResponse.status === 404) throw new Error('Repository not found or not public.')
     if (metadataResponse.status === 403) throw new Error('GitHub rate limit reached. Try again later.')
     throw new Error('Could not load this repository.')
   }
 
-  const metadata = await metadataResponse.json()
+  const metadata = await metadataResponse.json() as GitHubMetadata
+  const warnings: string[] = []
+
+  async function optionalFetch(url: string) {
+    try {
+      return await fetch(url, request)
+    } catch (error) {
+      if (signal?.aborted) throw error
+      return undefined
+    }
+  }
+
+  const defaultBranch = metadata.default_branch?.trim() || 'main'
+  const issuesUrl = `${repositoryUrl}/issues?state=open&sort=comments&direction=desc&per_page=9`
+
+  if (!metadata.default_branch?.trim()) {
+    warnings.push('This repository has no files yet.')
+    const issuesResponse = await optionalFetch(issuesUrl)
+    const bosses = issuesResponse?.ok
+      ? normalizeBosses(await issuesResponse.json() as GitHubIssue[])
+      : []
+    if (!issuesResponse?.ok) warnings.push('Open issues and pull requests could not be loaded.')
+    return {
+      owner,
+      name,
+      description: metadata.description ?? 'An unexplored repository.',
+      stars: metadata.stargazers_count ?? 0,
+      language: metadata.language ?? 'Mixed',
+      defaultBranch,
+      files: [],
+      commits: [],
+      bosses,
+      warnings,
+      recentChangedPaths: [],
+    }
+  }
+
+  const branch = encodeURIComponent(defaultBranch)
   const [treeResponse, commitsResponse, issuesResponse] = await Promise.all([
-    fetch(`https://api.github.com/repos/${owner}/${name}/git/trees/${metadata.default_branch}?recursive=1`, { headers }),
-    fetch(`https://api.github.com/repos/${owner}/${name}/commits?sha=${metadata.default_branch}&per_page=10`, { headers }),
-    fetch(`https://api.github.com/repos/${owner}/${name}/issues?state=open&sort=comments&direction=desc&per_page=9`, { headers }),
+    fetch(`${repositoryUrl}/git/trees/${branch}?recursive=1`, request),
+    optionalFetch(`${repositoryUrl}/commits?sha=${branch}&per_page=10`),
+    optionalFetch(issuesUrl),
   ])
-  if (!treeResponse.ok) throw new Error('Could not load the repository tree.')
-  const tree = await treeResponse.json()
-  const commits = commitsResponse.ok ? normalizeCommits(await commitsResponse.json()) : []
-  const bosses = issuesResponse.ok ? normalizeBosses(await issuesResponse.json()) : []
-  const files: RepoFile[] = tree.tree
-    .filter((item: RepoFile) => item.type === 'blob')
-    .slice(0, 3000)
-    .map((item: RepoFile) => ({ path: item.path, size: item.size ?? 0, type: 'blob' }))
+
+  let tree: GitHubTree = { tree: [] }
+  if (treeResponse.ok) {
+    tree = await treeResponse.json() as GitHubTree
+  } else if (treeResponse.status === 409) {
+    warnings.push('This repository has no files yet.')
+  } else if (treeResponse.status === 403) {
+    throw new Error('GitHub rate limit reached while loading the repository tree. Try again later.')
+  } else {
+    throw new Error('Could not load the repository tree.')
+  }
+
+  if (tree.truncated) {
+    warnings.push('GitHub returned a truncated repository tree; some files may be missing.')
+  }
+
+  const blobs = (tree.tree ?? []).filter((item) => item.type === 'blob' && typeof item.path === 'string')
+  if (blobs.length > FILE_LIMIT) {
+    warnings.push(`Only the first ${FILE_LIMIT.toLocaleString('en-US')} files are shown; additional files were omitted.`)
+  }
+
+  const files: RepoFile[] = blobs
+    .slice(0, FILE_LIMIT)
+    .map((item) => ({ path: item.path!, size: typeof item.size === 'number' ? item.size : 0, type: 'blob' }))
+
+  let commits: CommitQuest[] = []
+  if (commitsResponse?.ok) {
+    commits = normalizeCommits(await commitsResponse.json() as GitHubCommit[])
+  } else if (treeResponse.status !== 409) {
+    warnings.push('Recent commits could not be loaded.')
+  }
+
+  let bosses: BossEncounter[] = []
+  if (issuesResponse?.ok) {
+    bosses = normalizeBosses(await issuesResponse.json() as GitHubIssue[])
+  } else {
+    warnings.push('Open issues and pull requests could not be loaded.')
+  }
+
+  let recentChangedPaths: string[] = []
+  if (commits.length > 0) {
+    const detailResponse = await optionalFetch(`${repositoryUrl}/commits/${encodeURIComponent(commits[0].sha)}?per_page=100`)
+    if (detailResponse?.ok) {
+      const detail = await detailResponse.json() as GitHubCommitDetail
+      recentChangedPaths = (detail.files ?? [])
+        .map((file) => file.filename)
+        .filter((path): path is string => typeof path === 'string')
+      if (detailResponse.headers.get('link')?.includes('rel="next"')) {
+        warnings.push('The latest commit changes more than 100 files; map highlights show a partial list.')
+      }
+    } else {
+      warnings.push('Changed files for the latest commit could not be loaded.')
+    }
+  }
 
   return {
     owner,
@@ -90,9 +208,11 @@ export async function fetchRepository(value: string): Promise<Repository> {
     description: metadata.description ?? 'An unexplored repository.',
     stars: metadata.stargazers_count ?? 0,
     language: metadata.language ?? 'Mixed',
-    defaultBranch: metadata.default_branch,
+    defaultBranch,
     files,
     commits,
     bosses,
+    warnings,
+    recentChangedPaths,
   }
 }
