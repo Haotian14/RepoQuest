@@ -4,18 +4,21 @@ import { formatBytes } from '../lib/map'
 export function Inspector({ district }: { district?: District }) {
   if (!district) {
     return (
-      <aside className="inspector empty">
-        <div className="quest-icon">⌕</div>
-        <h2>Choose your destination</h2>
-        <p>Each building is a folder in this little valley. Larger buildings hold more files and secrets.</p>
+      <aside className="inspector empty" aria-live="polite" tabIndex={-1}>
+        <div className="quest-icon"><i /></div>
+        <span className="inspector-kicker">EXPLORER'S JOURNAL</span>
+        <h2>Choose a destination</h2>
+        <p>Walk toward a building or select one on the map. Every district represents a folder in this repository.</p>
+        <div className="journal-tip"><kbd>WASD</kbd><span>move</span><kbd>E</kbd><span>open</span></div>
       </aside>
     )
   }
 
   return (
-    <aside className="inspector">
-      <div className="inspector-kicker">✦ DISTRICT DISCOVERED ✦</div>
+    <aside className="inspector" aria-live="polite" tabIndex={-1}>
+      <div className="inspector-kicker">DISTRICT DISCOVERED</div>
       <h2>{district.label}</h2>
+      <div className="district-path">/{district.path}</div>
       <div className="stats-grid">
         <div><strong>{district.fileCount}</strong><span>files</span></div>
         <div><strong>{formatBytes(district.totalSize)}</strong><span>size</span></div>
@@ -32,6 +35,7 @@ export function Inspector({ district }: { district?: District }) {
         ))}
         {district.files.length > 7 && <div className="more-files">+ {district.files.length - 7} more files</div>}
       </div>
+      <a className="map-return" href="#repository-map">RETURN TO MAP</a>
     </aside>
   )
 }

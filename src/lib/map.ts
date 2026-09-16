@@ -2,7 +2,7 @@ import type { District, RepoFile, Repository } from '../types'
 
 const COLORS = ['#f59e0b', '#38bdf8', '#a78bfa', '#fb7185', '#34d399', '#f472b6', '#facc15', '#60a5fa']
 const POSITIONS = [
-  [15, 18], [41, 14], [69, 18], [81, 45], [66, 69], [39, 72], [13, 66], [28, 44], [56, 43],
+  [29, 19], [50, 19], [70, 20], [23, 45], [50, 43], [69, 45], [27, 72], [50, 72], [69, 72],
 ]
 
 export function buildDistricts(repository: Repository): District[] {

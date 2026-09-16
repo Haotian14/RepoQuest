@@ -29,6 +29,18 @@ function App() {
     }
   }
 
+  function selectDistrict(district: District) {
+    setSelected(district)
+    if (window.matchMedia('(max-width: 850px)').matches) {
+      window.requestAnimationFrame(() => {
+        const inspector = document.querySelector<HTMLElement>('.inspector')
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        inspector?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+        inspector?.focus({ preventScroll: true })
+      })
+    }
+  }
+
   return (
     <main>
       <header className="topbar">
@@ -37,61 +49,75 @@ function App() {
           <span>RepoQuest<small>CODE VALLEY</small></span>
         </a>
         <div className="top-actions">
-          <span className="season-card"><b>SPRING</b><em>01</em></span>
-          <span className="online-dot" /> PUBLIC WORLDS
-          <a href="https://github.com/Haotian14/RepoQuest" target="_blank" rel="noreferrer">GITHUB ↗</a>
+          <a className="world-link" href="#world">ENTER THE VALLEY</a>
+          <a className="github-link" href="https://github.com/Haotian14/RepoQuest" target="_blank" rel="noreferrer">GITHUB <span>↗</span></a>
         </div>
       </header>
 
       <section className="hero" id="top">
         <div className="hero-copy">
-          <div className="hero-leaf left" />
-          <div className="hero-leaf right" />
-          <p className="eyebrow">WELCOME, EXPLORER!</p>
-          <h1>Every repository<br /><em>has a story.</em></h1>
-          <p className="subtitle">Turn folders into villages, files into landmarks, and your codebase into a cozy world worth exploring.</p>
+          <p className="eyebrow"><span /> A GITHUB ADVENTURE</p>
+          <h1>Explore code.<br /><em>Find the story.</em></h1>
+          <p className="subtitle">Every repository is a place waiting to be discovered. Turn folders into villages, files into landmarks, and code into a living world.</p>
+          <form onSubmit={explore} className="repo-form">
+            <label htmlFor="repository">Choose a public repository</label>
+            <div className="input-row">
+              <span aria-hidden="true">GH</span>
+              <input
+                id="repository"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="owner/repository"
+                autoComplete="off"
+              />
+              <button disabled={loading}>{loading ? 'BUILDING WORLD…' : 'BEGIN QUEST'}</button>
+            </div>
+            {error && <p className="error" role="alert">{error}</p>}
+            <p className="form-note"><i /> No sign-in &nbsp;·&nbsp; Public repositories only</p>
+          </form>
         </div>
-        <form onSubmit={explore} className="repo-form">
-          <div className="form-ribbon">START A NEW JOURNEY</div>
-          <label htmlFor="repository">Which repository shall we explore?</label>
-          <div className="input-row">
-            <span>⌂</span>
-            <input
-              id="repository"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="owner/repository"
-              autoComplete="off"
-            />
-            <button disabled={loading}>{loading ? 'PLANTING…' : 'EXPLORE →'}</button>
+        <div className="hero-status" aria-hidden="true">
+          <span>01</span>
+          <div><b>CODE VALLEY</b><small>WORLD ONLINE</small></div>
+        </div>
+        <a className="scroll-cue" href="#world"><span>EXPLORE THE MAP</span><i /></a>
+      </section>
+
+      <section className="world-section" id="world">
+        <div className="section-heading">
+          <div>
+            <span className="section-index">WORLD 01</span>
+            <h2>The Repository Valley</h2>
           </div>
-          {error && <p className="error" role="alert">⚠ {error}</p>}
-          <p className="form-note">Public repositories only · No sign-in needed</p>
-        </form>
-      </section>
-
-      <section className="repo-banner">
-        <div>
-          <span className="repo-owner">NOW EXPLORING · {repository.owner} /</span>
-          <h2>{repository.name}</h2>
-          <p>{repository.description}</p>
+          <p>Walk the paths, approach a district, and open its doors.</p>
         </div>
-        <div className="repo-metrics">
-          <div><strong>★ {repository.stars.toLocaleString()}</strong><span>STARS</span></div>
-          <div><strong>{repository.language}</strong><span>LANGUAGE</span></div>
-          <div><strong>{repository.files.length}</strong><span>FILES</span></div>
-          <div><strong>{districts.length}</strong><span>DISTRICTS</span></div>
-        </div>
-      </section>
 
-      <section className="explorer-layout">
-        <WorldMap districts={districts} selected={selected} onSelect={setSelected} />
-        <Inspector district={selected} />
+        <section className="repo-banner">
+          <div className="repo-identity">
+            <span className="repo-seal">RQ</span>
+            <div>
+              <span className="repo-owner">{repository.owner} /</span>
+              <h3>{repository.name}</h3>
+              <p>{repository.description}</p>
+            </div>
+          </div>
+          <div className="repo-metrics">
+            <div><strong>{repository.stars.toLocaleString()}</strong><span>STARS</span></div>
+            <div><strong>{repository.language}</strong><span>LANGUAGE</span></div>
+            <div><strong>{repository.files.length}</strong><span>FILES</span></div>
+            <div><strong>{districts.length}</strong><span>DISTRICTS</span></div>
+          </div>
+        </section>
+
+        <section className="explorer-layout">
+          <WorldMap districts={districts} selected={selected} onSelect={selectDistrict} />
+          <Inspector district={selected} />
+        </section>
       </section>
 
       <footer>
-        <span>🌱 BUILT FOR CURIOUS DEVELOPERS</span>
-        <span>RepoQuest v0.2 · MADE WITH PATIENCE</span>
+        <span>BUILT FOR CURIOUS DEVELOPERS</span>
+        <span>RepoQuest · OPEN SOURCE</span>
       </footer>
     </main>
   )

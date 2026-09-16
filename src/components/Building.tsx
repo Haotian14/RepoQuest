@@ -1,5 +1,5 @@
 import type { District } from '../types'
-import { buildingSprites } from '../art'
+import { buildingArchetype } from '../art'
 
 type Props = {
   district: District
@@ -9,22 +9,25 @@ type Props = {
 }
 
 export function Building({ district, active, nearby, onSelect }: Props) {
-  const variant = district.label.length % 4
-  const tiles = buildingSprites[variant % buildingSprites.length]
+  const artwork = buildingArchetype(district.path, district.label)
 
   return (
     <button
-      className={`building level-${district.level} variant-${variant}${active ? ' active' : ''}${nearby ? ' nearby' : ''}`}
-      style={{ left: `${district.x}%`, top: `${district.y}%`, '--accent': district.color } as React.CSSProperties}
-      onClick={() => onSelect(district)}
+      className={`building level-${district.level} ${artwork.className}${active ? ' active' : ''}${nearby ? ' nearby' : ''}`}
+      style={{ left: `${district.x}%`, top: `${district.y}%`, zIndex: 100 + Math.round(district.y) } as React.CSSProperties}
+      onClick={(event) => {
+        onSelect(district)
+        if (event.detail > 0) event.currentTarget.blur()
+      }}
       aria-label={`Explore ${district.label}, ${district.fileCount} files`}
     >
-      <span className="building-sprite" aria-hidden="true">
-        {tiles.map((tile, index) => <img key={`${tile}-${index}`} src={tile} alt="" />)}
-        <span className="building-emblem">{district.path === 'root' ? '★' : '◆'}</span>
+      <span className="building-art" aria-hidden="true">
+        {artwork.accessory && <img className="building-accessory" src={artwork.accessory} alt="" />}
+        {artwork.secondary && <img className="building-secondary" src={artwork.secondary} alt="" />}
+        <img className="building-main" src={artwork.main} alt="" />
+        <span className="building-marker">{artwork.marker}</span>
       </span>
-      <span className="building-sign">{district.label}</span>
-      <span className="building-count">{district.fileCount}</span>
+      <span className="building-sign"><b>{district.label}</b><small>{district.fileCount} files</small></span>
     </button>
   )
 }

@@ -1,0 +1,8 @@
+Universal LPC Sprite Male 01
+https://opengameart.org/content/universal-lpc-sprite-male-01
+
+Copyright/attribution: Gaurav Munjal, Stephen Challener (Redshrike)
+License: Creative Commons Attribution-ShareAlike 3.0
+https://creativecommons.org/licenses/by-sa/3.0/
+
+RepoQuest uses universal-lpc-sprite_male_01_walk-3frame.png without modification.
