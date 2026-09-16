@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { District } from '../types'
 import { movePlayer, nearestDistrict, type Direction } from '../lib/movement'
+import { scenery } from '../art'
 import { Building } from './Building'
 
 type Props = {
@@ -53,14 +54,29 @@ export function WorldMap({ districts, selected, onSelect }: Props) {
       <div className="path vertical" />
       <div className="river"><i /><i /><i /></div>
       <div className="bridge"><i /><i /><i /><i /></div>
-      <div className="crop-field field-one"><i /><i /><i /><i /><i /><i /></div>
-      <div className="crop-field field-two"><i /><i /><i /><i /></div>
-      <div className="forest forest-one"><i /><i /><i /><i /></div>
-      <div className="forest forest-two"><i /><i /><i /></div>
-      <div className="flowers flowers-one">✦ · ✿ · ✦</div>
-      <div className="flowers flowers-two">✿ · ✦</div>
+      <div className="crop-field field-one">
+        {scenery.crops.map((crop) => <img key={crop} src={crop} alt="" />)}
+      </div>
+      <div className="crop-field field-two">
+        {scenery.crops.slice(2).map((crop) => <img key={crop} src={crop} alt="" />)}
+      </div>
+      <div className="forest forest-one">
+        {[...scenery.trees, scenery.trees[0]].map((tree, index) => <img key={`${tree}-${index}`} src={tree} alt="" />)}
+      </div>
+      <div className="forest forest-two">
+        {scenery.trees.map((tree) => <img key={tree} src={tree} alt="" />)}
+      </div>
+      <div className="flowers flowers-one" aria-hidden="true">
+        <img src={scenery.flower} alt="" /><img src={scenery.mushrooms} alt="" /><img src={scenery.flower} alt="" />
+      </div>
+      <div className="flowers flowers-two" aria-hidden="true">
+        <img src={scenery.flower} alt="" /><img src={scenery.mushrooms} alt="" />
+      </div>
       <div className="fence fence-one" />
       <div className="fence fence-two" />
+      <div className="farm-animals" aria-hidden="true">
+        {scenery.animals.map((animal) => <img key={animal} src={animal} alt="" />)}
+      </div>
       {districts.map((district) => (
         <Building
           key={district.id}
@@ -74,7 +90,7 @@ export function WorldMap({ districts, selected, onSelect }: Props) {
         className={`player facing-${facing}`}
         style={{ left: `${position.x}%`, top: `${position.y}%` }}
         aria-label="Explorer character"
-      ><span /><i className="player-face" /></div>
+      ><img src={scenery.player} alt="" /></div>
       <div className={`proximity-hint${nearby ? ' visible' : ''}`}>
         {nearby ? <><kbd>E</kbd> EXPLORE {nearby.label}</> : 'FOLLOW THE PATH TO A BUILDING'}
       </div>

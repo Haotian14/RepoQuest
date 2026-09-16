@@ -1,4 +1,5 @@
 import type { District } from '../types'
+import { buildingSprites } from '../art'
 
 type Props = {
   district: District
@@ -9,6 +10,7 @@ type Props = {
 
 export function Building({ district, active, nearby, onSelect }: Props) {
   const variant = district.label.length % 4
+  const tiles = buildingSprites[variant % buildingSprites.length]
 
   return (
     <button
@@ -17,12 +19,9 @@ export function Building({ district, active, nearby, onSelect }: Props) {
       onClick={() => onSelect(district)}
       aria-label={`Explore ${district.label}, ${district.fileCount} files`}
     >
-      <span className="building-chimney" />
-      <span className="building-roof" />
-      <span className="building-body">
-        <span className="window-grid"><i /><i /><i /><i /></span>
-        <span className="building-door" />
-        <span className="building-vine" />
+      <span className="building-sprite" aria-hidden="true">
+        {tiles.map((tile, index) => <img key={`${tile}-${index}`} src={tile} alt="" />)}
+        <span className="building-emblem">{district.path === 'root' ? '★' : '◆'}</span>
       </span>
       <span className="building-sign">{district.label}</span>
       <span className="building-count">{district.fileCount}</span>

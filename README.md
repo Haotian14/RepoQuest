@@ -66,3 +66,5 @@ Ideas, bug reports, and pull requests are welcome. Please run `npm test` and `np
 ## License
 
 [MIT](LICENSE)
+
+Pixel artwork is drawn from CC0 Kenney asset packs. See [THIRD_PARTY_ASSETS.md](./THIRD_PARTY_ASSETS.md) for sources and license details.
