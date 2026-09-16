@@ -2,6 +2,7 @@ import { FormEvent, useMemo, useState } from 'react'
 import { BossArena } from './components/BossArena'
 import { Inspector } from './components/Inspector'
 import { QuestBoard } from './components/QuestBoard'
+import { ShareMap } from './components/ShareMap'
 import { WorldMap } from './components/WorldMap'
 import { demoRepository } from './demo'
 import { fetchRepository } from './lib/github'
@@ -117,6 +118,8 @@ function App() {
           <WorldMap districts={districts} selected={selected} onSelect={selectDistrict} />
           <Inspector district={selected} />
         </section>
+
+        <ShareMap repository={repository} districts={districts} />
 
         <QuestBoard repository={repository} />
         <BossArena repository={repository} />

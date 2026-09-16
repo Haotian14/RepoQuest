@@ -7,20 +7,24 @@ type Props = {
   active: boolean
   nearby: boolean
   occluded: boolean
-  onSelect: (district: District) => void
+  decorative?: boolean
+  onSelect?: (district: District) => void
 }
 
-export function Building({ district, active, nearby, occluded, onSelect }: Props) {
+export function Building({ district, active, nearby, occluded, decorative = false, onSelect }: Props) {
   const artwork = buildingArchetype(district.path, district.label)
 
   return (
     <button
       className={`building level-${district.level} ${artwork.className}${active ? ' active' : ''}${nearby ? ' nearby' : ''}${occluded ? ' occluded' : ''}`}
       style={{ left: `${district.x}%`, top: `${district.y}%`, zIndex: depthForY(district.y) } as React.CSSProperties}
+      type="button"
+      disabled={decorative}
       onClick={(event) => {
-        onSelect(district)
+        onSelect?.(district)
         if (event.detail > 0) event.currentTarget.blur()
       }}
+      aria-hidden={decorative || undefined}
       aria-label={`Explore ${district.label}, ${district.fileCount} files`}
     >
       <span className="building-art" aria-hidden="true">
