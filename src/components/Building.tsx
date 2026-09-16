@@ -3,15 +3,16 @@ import type { District } from '../types'
 type Props = {
   district: District
   active: boolean
+  nearby: boolean
   onSelect: (district: District) => void
 }
 
-export function Building({ district, active, onSelect }: Props) {
+export function Building({ district, active, nearby, onSelect }: Props) {
   const variant = district.label.length % 4
 
   return (
     <button
-      className={`building level-${district.level} variant-${variant}${active ? ' active' : ''}`}
+      className={`building level-${district.level} variant-${variant}${active ? ' active' : ''}${nearby ? ' nearby' : ''}`}
       style={{ left: `${district.x}%`, top: `${district.y}%`, '--accent': district.color } as React.CSSProperties}
       onClick={() => onSelect(district)}
       aria-label={`Explore ${district.label}, ${district.fileCount} files`}

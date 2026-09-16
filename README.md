@@ -14,6 +14,8 @@ RepoQuest transforms the structure of a public GitHub repository into a playful 
 
 - Explore any public GitHub repository without signing in
 - Generate a deterministic 2D pixel map from its file tree
+- Walk around with WASD, arrow keys, or touch controls
+- Approach buildings and press `E` to explore folders
 - Inspect top-level folders, file counts, sizes, and nearby files
 - Responsive interface for desktop and mobile
 - No backend and no stored repository data
@@ -51,7 +53,7 @@ npm run preview   # preview the production build
 
 - [x] Public repository exploration
 - [x] Pixel districts and file inspector
-- [ ] Walkable character and keyboard navigation
+- [x] Walkable character and keyboard navigation
 - [ ] Commit-history quests
 - [ ] Issue and pull-request boss battles
 - [ ] Shareable map screenshots
