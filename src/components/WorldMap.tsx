@@ -1,7 +1,7 @@
 import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
 import type { District } from '../types'
 import { movePlayer, nearestDistrict, type Direction } from '../lib/movement'
-import { depthForY } from '../lib/depth'
+import { depthForY, isOccludedByBuilding } from '../lib/depth'
 import { explorerDirectionRow, explorerSprite } from '../art'
 import { Building } from './Building'
 
@@ -84,6 +84,7 @@ export function WorldMap({ districts, selected, onSelect }: Props) {
               district={district}
               active={selected?.id === district.id}
               nearby={nearby?.id === district.id}
+              occluded={isOccludedByBuilding(position, district)}
               onSelect={onSelect}
             />
           ))}

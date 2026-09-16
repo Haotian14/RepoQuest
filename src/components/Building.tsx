@@ -6,15 +6,16 @@ type Props = {
   district: District
   active: boolean
   nearby: boolean
+  occluded: boolean
   onSelect: (district: District) => void
 }
 
-export function Building({ district, active, nearby, onSelect }: Props) {
+export function Building({ district, active, nearby, occluded, onSelect }: Props) {
   const artwork = buildingArchetype(district.path, district.label)
 
   return (
     <button
-      className={`building level-${district.level} ${artwork.className}${active ? ' active' : ''}${nearby ? ' nearby' : ''}`}
+      className={`building level-${district.level} ${artwork.className}${active ? ' active' : ''}${nearby ? ' nearby' : ''}${occluded ? ' occluded' : ''}`}
       style={{ left: `${district.x}%`, top: `${district.y}%`, zIndex: depthForY(district.y) } as React.CSSProperties}
       onClick={(event) => {
         onSelect(district)
