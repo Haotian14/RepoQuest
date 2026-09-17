@@ -79,4 +79,30 @@ describe('App repository exploration', () => {
     await waitFor(() => expect(screen.queryByText('old /')).toBeNull())
     expect(new URL(window.location.href).searchParams.get('repo')).toBe('new/repository')
   })
+
+  it('renders a friendly empty-world state with working GitHub link when repository has no files', async () => {
+    fetchRepository.mockResolvedValue(repository('octocat', 'empty-repo'))
+    window.history.replaceState({}, '', '/RepoQuest/?repo=octocat%2Fempty-repo')
+
+    render(<App />)
+
+    expect(await screen.findByRole('region', { name: 'Empty repository world' })).not.toBeNull()
+    expect(screen.getByText(/No structures have been built yet/i)).not.toBeNull()
+    expect(screen.getByText(/This repository has no files on its/i)).not.toBeNull()
+    const githubLink = screen.getByRole('link', { name: /Open on GitHub/i })
+    expect(githubLink.getAttribute('href')).toBe('https://github.com/octocat/empty-repo')
+    expect(screen.queryByTestId('world-map')).toBeNull()
+  })
+
+  it('renders the interactive world map when repository has files', async () => {
+    const populated = repository('octocat', 'hello-world')
+    populated.files = [{ path: 'src/main.ts', size: 120, type: 'blob' }]
+    fetchRepository.mockResolvedValue(populated)
+    window.history.replaceState({}, '', '/RepoQuest/?repo=octocat%2Fhello-world')
+
+    render(<App />)
+
+    expect(await screen.findByTestId('world-map')).not.toBeNull()
+    expect(screen.queryByRole('region', { name: 'Empty repository world' })).toBeNull()
+  })
 })
