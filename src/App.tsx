@@ -257,26 +257,64 @@ function App() {
 
         {!isDemo && changeReport && <ChangeTracker report={changeReport} onResume={resumeExploration} />}
 
-        <section className="explorer-layout" aria-busy={loading}>
-          {loading && (
-            <div className="world-loading" role="status" aria-live="polite">
-              <span className="loading-rune" aria-hidden="true">RQ</span>
-              <div><strong>REBUILDING THE VALLEY</strong><small>{query || 'Preparing repository data…'}</small></div>
+        {repository.files.length === 0 ? (
+          <section className="empty-world" aria-label="Empty repository world" aria-busy={loading}>
+            {loading && (
+              <div className="world-loading" role="status" aria-live="polite">
+                <span className="loading-rune" aria-hidden="true">RQ</span>
+                <div><strong>REBUILDING THE VALLEY</strong><small>{query || 'Preparing repository data…'}</small></div>
+              </div>
+            )}
+            <div className="empty-world-scene" aria-hidden="true">
+              <div className="empty-world-ground">
+                <span className="empty-world-tent">⛺</span>
+                <span className="empty-world-tree">🌲</span>
+                <span className="empty-world-rock">🪨</span>
+              </div>
+              <div className="empty-world-badge">UNSETTLED TERRITORY</div>
             </div>
-          )}
-          <WorldMap
-            districts={districts}
-            selected={selected}
-            recentChangedPaths={repository.recentChangedPaths}
-            currentPath={mapPath}
-            language={repository.language}
-            onSelect={selectDistrict}
-            onNavigate={navigateMap}
-          />
-          <Inspector district={selected} repository={repository} />
-        </section>
+            <div className="empty-world-content">
+              <span className="empty-world-tag">QUIET VALLEY</span>
+              <h3>No structures have been built yet</h3>
+              <p>
+                This repository has no files on its <strong>{repository.defaultBranch}</strong> branch yet. Once code or documents are committed, districts, trails, and landmarks will emerge across the valley.
+              </p>
+              <div className="empty-world-actions">
+                <a
+                  className="empty-world-action"
+                  href={`https://github.com/${encodeURIComponent(repository.owner)}/${encodeURIComponent(repository.name)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open on GitHub <span>↗</span>
+                </a>
+              </div>
+            </div>
+          </section>
+        ) : (
+          <>
+            <section className="explorer-layout" aria-busy={loading}>
+              {loading && (
+                <div className="world-loading" role="status" aria-live="polite">
+                  <span className="loading-rune" aria-hidden="true">RQ</span>
+                  <div><strong>REBUILDING THE VALLEY</strong><small>{query || 'Preparing repository data…'}</small></div>
+                </div>
+              )}
+              <WorldMap
+                districts={districts}
+                selected={selected}
+                recentChangedPaths={repository.recentChangedPaths}
+                currentPath={mapPath}
+                language={repository.language}
+                onSelect={selectDistrict}
+                onNavigate={navigateMap}
+              />
+              <Inspector district={selected} repository={repository} />
+            </section>
 
-        <ShareMap repository={repository} districts={rootDistricts} />
+            <ShareMap repository={repository} districts={rootDistricts} />
+          </>
+        )}
 
         <QuestBoard repository={repository} />
         <BossArena repository={repository} />
