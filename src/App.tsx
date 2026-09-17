@@ -1,5 +1,6 @@
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BossArena } from './components/BossArena'
+import { ChangeTracker } from './components/ChangeTracker'
 import { Inspector } from './components/Inspector'
 import { QuestBoard } from './components/QuestBoard'
 import { ShareMap } from './components/ShareMap'
@@ -8,6 +9,7 @@ import { demoRepository } from './demo'
 import { fetchRepository } from './lib/github'
 import { buildDistricts } from './lib/map'
 import { clearRecentRepositories, loadRecentRepositories, recentRepositoryLabel, rememberRepository } from './lib/recent'
+import { compareRepositorySnapshot, loadRepositorySnapshot, saveExplorationLocation, saveRepositorySnapshot, type RepositoryChangeReport } from './lib/snapshot'
 import type { District, Repository } from './types'
 
 type HistoryMode = 'push' | 'replace' | 'none'
@@ -16,13 +18,16 @@ function App() {
   const [query, setQuery] = useState('')
   const [repository, setRepository] = useState<Repository>(demoRepository)
   const [selected, setSelected] = useState<District>()
+  const [mapPath, setMapPath] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [isDemo, setIsDemo] = useState(true)
   const [recentRepositories, setRecentRepositories] = useState(loadRecentRepositories)
+  const [changeReport, setChangeReport] = useState<RepositoryChangeReport>()
   const activeRequest = useRef<AbortController | undefined>(undefined)
   const requestSequence = useRef(0)
-  const districts = useMemo(() => buildDistricts(repository), [repository])
+  const districts = useMemo(() => buildDistricts(repository, mapPath), [repository, mapPath])
+  const rootDistricts = useMemo(() => buildDistricts(repository), [repository])
 
   const openRepository = useCallback(async (value: string, historyMode: HistoryMode = 'push') => {
     const requestedRepository = value.trim()
@@ -35,13 +40,19 @@ function App() {
     setLoading(true)
     setError('')
     setSelected(undefined)
+    setMapPath('')
+    setChangeReport(undefined)
 
     try {
       const nextRepository = await fetchRepository(requestedRepository, controller.signal)
       if (controller.signal.aborted || sequence !== requestSequence.current) return
 
       const fullName = `${nextRepository.owner}/${nextRepository.name}`
+      const previousSnapshot = loadRepositorySnapshot(nextRepository)
+      const nextChangeReport = compareRepositorySnapshot(nextRepository, previousSnapshot)
+      saveRepositorySnapshot(nextRepository)
       setRepository(nextRepository)
+      setChangeReport(nextChangeReport)
       setIsDemo(false)
       setQuery(fullName)
       setRecentRepositories(rememberRepository(nextRepository))
@@ -73,9 +84,11 @@ function App() {
       setRepository(demoRepository)
       setIsDemo(true)
       setSelected(undefined)
+      setMapPath('')
       setQuery('')
       setError('')
       setLoading(false)
+      setChangeReport(undefined)
     }
 
     openFromLocation()
@@ -93,7 +106,14 @@ function App() {
   }
 
   function selectDistrict(district: District) {
+    if (district.canEnter) {
+      setMapPath(district.path)
+      setSelected(undefined)
+      if (!isDemo) saveExplorationLocation(repository, { mapPath: district.path })
+      return
+    }
     setSelected(district)
+    if (!isDemo) saveExplorationLocation(repository, { mapPath, selectedPath: district.path, selectedKind: district.kind })
     if (window.matchMedia('(max-width: 850px)').matches) {
       window.requestAnimationFrame(() => {
         const inspector = document.querySelector<HTMLElement>('.inspector')
@@ -102,6 +122,31 @@ function App() {
         inspector?.focus({ preventScroll: true })
       })
     }
+  }
+
+  function navigateMap(path: string) {
+    setMapPath(path)
+    setSelected(undefined)
+    if (!isDemo) saveExplorationLocation(repository, { mapPath: path })
+  }
+
+  function resumeExploration() {
+    const location = changeReport?.previousExploration
+    if (!location) return
+    const pathExists = !location.mapPath || repository.files.some((file) => file.path.startsWith(`${location.mapPath}/`))
+    const nextPath = pathExists ? location.mapPath : ''
+    const visibleDistricts = buildDistricts(repository, nextPath)
+    const nextSelected = visibleDistricts.find((district) => (
+      district.path === location.selectedPath && district.kind === location.selectedKind
+    ))
+    setMapPath(nextPath)
+    setSelected(nextSelected)
+    saveExplorationLocation(repository, {
+      mapPath: nextPath,
+      selectedPath: nextSelected?.path,
+      selectedKind: nextSelected?.kind,
+    })
+    window.requestAnimationFrame(() => document.getElementById('repository-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' }))
   }
 
   return (
@@ -199,7 +244,7 @@ function App() {
             <div><strong>{repository.stars.toLocaleString()}</strong><span>STARS</span></div>
             <div><strong>{repository.language}</strong><span>LANGUAGE</span></div>
             <div><strong>{repository.files.length}</strong><span>FILES</span></div>
-            <div><strong>{districts.length}</strong><span>DISTRICTS</span></div>
+            <div><strong>{rootDistricts.length}</strong><span>DISTRICTS</span></div>
           </div>
         </section>
 
@@ -209,6 +254,8 @@ function App() {
             <ul>{repository.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
           </aside>
         )}
+
+        {!isDemo && changeReport && <ChangeTracker report={changeReport} onResume={resumeExploration} />}
 
         <section className="explorer-layout" aria-busy={loading}>
           {loading && (
@@ -221,12 +268,15 @@ function App() {
             districts={districts}
             selected={selected}
             recentChangedPaths={repository.recentChangedPaths}
+            currentPath={mapPath}
+            language={repository.language}
             onSelect={selectDistrict}
+            onNavigate={navigateMap}
           />
           <Inspector district={selected} repository={repository} />
         </section>
 
-        <ShareMap repository={repository} districts={districts} />
+        <ShareMap repository={repository} districts={rootDistricts} />
 
         <QuestBoard repository={repository} />
         <BossArena repository={repository} />

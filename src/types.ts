@@ -4,6 +4,14 @@ export type RepoFile = {
   type: 'blob' | 'tree'
 }
 
+export type RecentFileChange = {
+  path: string
+  status: string
+  additions: number
+  deletions: number
+  changedLines: number[]
+}
+
 export type CommitQuest = {
   sha: string
   message: string
@@ -38,12 +46,15 @@ export type Repository = {
   bosses: BossEncounter[]
   warnings: string[]
   recentChangedPaths: string[]
+  recentFileChanges: Record<string, RecentFileChange>
 }
 
 export type District = {
   id: string
   label: string
   path: string
+  kind: 'directory' | 'files'
+  canEnter: boolean
   files: RepoFile[]
   fileCount: number
   totalSize: number

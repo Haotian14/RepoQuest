@@ -34,7 +34,7 @@ describe('WorldMap', () => {
       />,
     )
 
-    const source = screen.getByRole('button', { name: /Explore src, 7 files, 2 recent changes/i })
+    const source = screen.getByRole('button', { name: /Enter src, 7 files, 2 recent changes/i })
     const root = screen.getByRole('button', { name: /Explore Town Hall, 3 files, 1 recent change/i })
     expect(source.classList.contains('recent-change')).toBe(true)
     expect(root.classList.contains('recent-change')).toBe(true)
@@ -45,7 +45,7 @@ describe('WorldMap', () => {
     const onSelect = vi.fn()
     render(<WorldMap districts={districts} onSelect={onSelect} />)
 
-    const building = screen.getByRole('button', { name: /Explore src/i })
+    const building = screen.getByRole('button', { name: /Enter src/i })
     building.focus()
     fireEvent.click(building)
     expect(document.activeElement).toBe(building)
@@ -79,5 +79,24 @@ describe('WorldMap', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Move right' }))
 
     await waitFor(() => expect(scrollTo).toHaveBeenLastCalledWith({ left: 333.44, behavior: 'auto' }))
+  })
+
+  it('renders a navigable breadcrumb and language-specific biome', () => {
+    const onNavigate = vi.fn()
+    render(
+      <WorldMap
+        districts={buildDistricts(demoRepository, 'src/components')}
+        currentPath="src/components"
+        language="TypeScript"
+        onSelect={vi.fn()}
+        onNavigate={onNavigate}
+      />,
+    )
+
+    expect(screen.getByText('ARCANE BIOME')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'src' }))
+    expect(onNavigate).toHaveBeenCalledWith('src')
+    fireEvent.click(screen.getByRole('button', { name: '← UP' }))
+    expect(onNavigate).toHaveBeenLastCalledWith('src')
   })
 })

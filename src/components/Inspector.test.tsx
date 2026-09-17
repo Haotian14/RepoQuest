@@ -1,10 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { demoRepository } from '../demo'
 import { buildDistricts } from '../lib/map'
 import { Inspector } from './Inspector'
 
 const districts = buildDistricts(demoRepository)
+
+afterEach(() => vi.unstubAllGlobals())
 
 describe('Inspector smart guide', () => {
   it('reveals a transparent local reading guide on demand', () => {
@@ -13,19 +15,20 @@ describe('Inspector smart guide', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /open smart guide/i }))
 
-    expect(screen.getByText('LOCAL ANALYSIS · NO API KEY')).toBeTruthy()
+    expect(screen.getByText(/READING KEY FILES LOCALLY|LOCAL ANALYSIS · NO API KEY/)).toBeTruthy()
     expect(screen.getByText('CORE WORKSHOP')).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'Open suggested file src/App.tsx on GitHub' }).getAttribute('href')).toBe(
-      'https://github.com/Haotian14/RepoQuest/blob/main/src/App.tsx',
-    )
+    expect(screen.getByRole('button', { name: 'Preview suggested file src/App.tsx' })).toBeTruthy()
     expect(screen.getByRole('button', { name: /close smart guide/i }).getAttribute('aria-expanded')).toBe('true')
   })
 
-  it('links nearby files to their exact source on the default branch', () => {
+  it('previews nearby files in-site and keeps the exact GitHub source link', async () => {
     const source = districts.find((district) => district.path === 'src')!
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: async () => 'export const map = true' }))
     render(<Inspector district={source} repository={{ ...demoRepository, defaultBranch: 'feature/map polish' }} />)
 
-    const link = screen.getByRole('link', { name: 'Open nearby file src/App.tsx on GitHub' })
+    fireEvent.click(screen.getByRole('button', { name: 'Preview nearby file src/App.tsx' }))
+    const dialog = await screen.findByRole('dialog', { name: 'App.tsx' })
+    const link = dialog.querySelector<HTMLAnchorElement>('a[href*="github.com"]')!
     expect(link.getAttribute('href')).toBe(
       'https://github.com/Haotian14/RepoQuest/blob/feature/map%20polish/src/App.tsx',
     )
@@ -38,7 +41,7 @@ describe('Inspector smart guide', () => {
     const repository = { ...demoRepository, recentChangedPaths: ['src/lib/github.ts'] }
     render(<Inspector district={source} repository={repository} />)
 
-    const links = screen.getAllByRole('link', { name: /Open nearby file/i })
+    const links = screen.getAllByRole('button', { name: /Preview nearby file/i })
     expect(links[0].getAttribute('aria-label')).toContain('src/lib/github.ts')
     expect(links[0].textContent).toContain('CHANGED')
   })
@@ -53,5 +56,25 @@ describe('Inspector smart guide', () => {
 
     expect(screen.queryByText('CORE WORKSHOP')).toBeNull()
     expect(screen.getByRole('button', { name: /open smart guide/i }).getAttribute('aria-expanded')).toBe('false')
+  })
+
+  it('shows stack, startup, imports, and test signals from local static analysis', async () => {
+    const source = districts.find((district) => district.path === 'src')!
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(async (url: string) => ({
+      ok: true,
+      text: async () => url.includes('package.json')
+        ? JSON.stringify({ scripts: { dev: 'vite' }, dependencies: { react: '^19' }, devDependencies: { typescript: '^7', vite: '^8' } })
+        : "import { WorldMap } from './components/WorldMap'",
+    })))
+    render(<Inspector district={source} repository={demoRepository} />)
+
+    fireEvent.click(screen.getByRole('button', { name: /open smart guide/i }))
+
+    expect(await screen.findByText(/STATIC ANALYSIS · \d+ FILES/)).toBeTruthy()
+    expect(screen.getByText('TypeScript · React · Vite')).toBeTruthy()
+    expect(screen.getByText('npm run dev — vite')).toBeTruthy()
+    expect(screen.getAllByText(/src\/App.tsx/).length).toBeGreaterThan(0)
+    expect(screen.getByText(/\.\/components\/WorldMap/)).toBeTruthy()
+    expect(screen.getByText(/tests\/map.test.ts/)).toBeTruthy()
   })
 })

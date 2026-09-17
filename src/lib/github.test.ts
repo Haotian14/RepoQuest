@@ -104,7 +104,11 @@ describe('fetchRepository', () => {
         commit: { message: 'feat: begin', author: { date: '2026-09-16T00:00:00Z' } },
       }]),
       response([]),
-      response({ files: [{ filename: 'src/main.ts' }, { filename: 'README.md' }, {}] }),
+      response({ files: [
+        { filename: 'src/main.ts', status: 'modified', additions: 2, deletions: 1, patch: '@@ -1,2 +1,3 @@\n const old = 1\n+const newValue = 2' },
+        { filename: 'README.md', status: 'added', additions: 5, deletions: 0 },
+        {},
+      ] }),
     )
 
     const repository = await fetchRepository('owner.team/repo.name', abortController.signal)
@@ -115,6 +119,14 @@ describe('fetchRepository', () => {
       defaultBranch: 'feature/test',
       warnings: [],
       recentChangedPaths: ['src/main.ts', 'README.md'],
+      recentFileChanges: {
+        'src/main.ts': {
+          path: 'src/main.ts', status: 'modified', additions: 2, deletions: 1, changedLines: [2],
+        },
+        'README.md': {
+          path: 'README.md', status: 'added', additions: 5, deletions: 0, changedLines: [],
+        },
+      },
     })
     expect(repository.files).toEqual([{ path: 'src/main.ts', size: 120, type: 'blob' }])
     expect(mockedFetch.mock.calls.map(([url]) => url)).toEqual([

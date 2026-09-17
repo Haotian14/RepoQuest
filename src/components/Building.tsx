@@ -32,7 +32,7 @@ export function Building({
       disabled={decorative}
       onClick={() => onSelect?.(district)}
       aria-hidden={decorative || undefined}
-      aria-label={`Explore ${district.label}, ${district.fileCount} files${hasRecentChanges ? `, ${recentChangeCount} recent ${recentChangeCount === 1 ? 'change' : 'changes'}` : ''}`}
+      aria-label={`${district.canEnter ? 'Enter' : 'Explore'} ${district.label}, ${district.fileCount} files${hasRecentChanges ? `, ${recentChangeCount} recent ${recentChangeCount === 1 ? 'change' : 'changes'}` : ''}`}
     >
       <span className="building-art" aria-hidden="true">
         {artwork.accessory && <img className="building-accessory" src={artwork.accessory} alt="" />}
@@ -41,7 +41,7 @@ export function Building({
         <span className="building-marker">{artwork.marker}</span>
       </span>
       {hasRecentChanges && <span className="building-change-badge" aria-hidden="true">CHANGED ×{recentChangeCount}</span>}
-      <span className="building-sign"><b>{district.label}</b><small>{district.fileCount} files</small></span>
+      <span className="building-sign"><b>{district.label}</b><small>{district.canEnter ? 'ENTER · ' : ''}{district.fileCount} files</small></span>
     </button>
   )
 }

@@ -2,6 +2,7 @@ import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useMemo, useRef, u
 import type { District } from '../types'
 import { movePlayer, nearestDistrict, type Direction } from '../lib/movement'
 import { depthForY, isOccludedByBuilding } from '../lib/depth'
+import { repositoryTheme } from '../lib/map'
 import { explorerDirectionRow, explorerSprite } from '../art'
 import { Building } from './Building'
 
@@ -9,17 +10,15 @@ type Props = {
   districts: District[]
   selected?: District
   recentChangedPaths?: string[]
+  currentPath?: string
+  language?: string
   onSelect: (district: District) => void
+  onNavigate?: (path: string) => void
 }
 
 const INITIAL_POSITION = { x: 49, y: 49 }
 
-function districtPathForFile(path: string) {
-  const normalized = path.replace(/^\/+/, '')
-  return normalized.includes('/') ? normalized.split('/')[0] : 'root'
-}
-
-export function WorldMap({ districts, selected, recentChangedPaths = [], onSelect }: Props) {
+export function WorldMap({ districts, selected, recentChangedPaths = [], currentPath = '', language = 'Mixed', onSelect, onNavigate }: Props) {
   const [position, setPosition] = useState(INITIAL_POSITION)
   const [facing, setFacing] = useState<Direction>('down')
   const [walkFrame, setWalkFrame] = useState(1)
@@ -31,12 +30,15 @@ export function WorldMap({ districts, selected, recentChangedPaths = [], onSelec
   const nearby = useMemo(() => nearestDistrict(position, districts), [districts, position])
   const recentChangesByDistrict = useMemo(() => {
     const counts = new Map<string, number>()
-    recentChangedPaths.forEach((path) => {
-      const districtPath = districtPathForFile(path)
-      counts.set(districtPath, (counts.get(districtPath) ?? 0) + 1)
+    districts.forEach((district) => {
+      const filePaths = new Set(district.files.map((file) => file.path))
+      const count = recentChangedPaths.filter((path) => filePaths.has(path)).length
+      if (count) counts.set(district.id, count)
     })
     return counts
-  }, [recentChangedPaths])
+  }, [districts, recentChangedPaths])
+  const breadcrumbParts = currentPath ? currentPath.split('/') : []
+  const theme = repositoryTheme(language)
 
   function followPlayer(nextPosition: typeof INITIAL_POSITION) {
     const viewport = viewportRef.current
@@ -131,9 +133,26 @@ export function WorldMap({ districts, selected, recentChangedPaths = [], onSelec
 
   return (
     <div className="world-stage">
+      <nav className="map-navigation" aria-label="Repository map location">
+        {currentPath && (
+          <button className="map-back" type="button" onClick={() => onNavigate?.(breadcrumbParts.slice(0, -1).join('/'))}>← UP</button>
+        )}
+        <button type="button" aria-current={!currentPath ? 'location' : undefined} onClick={() => onNavigate?.('')}>ROOT</button>
+        {breadcrumbParts.map((part, index) => {
+          const path = breadcrumbParts.slice(0, index + 1).join('/')
+          const isCurrent = index === breadcrumbParts.length - 1
+          return (
+            <span key={path}>
+              <i aria-hidden="true">/</i>
+              <button type="button" aria-current={isCurrent ? 'location' : undefined} onClick={() => onNavigate?.(path)}>{part}</button>
+            </span>
+          )
+        })}
+        <span className={`map-theme theme-${theme}`}><i />{theme.toUpperCase()} BIOME</span>
+      </nav>
       <div className="world-viewport" ref={viewportRef}>
         <section
-          className="world"
+          className={`world world-theme-${theme}`}
           id="repository-map"
           aria-label="Repository world map. Focus this area to move with WASD or arrow keys."
           ref={worldRef}
@@ -148,7 +167,7 @@ export function WorldMap({ districts, selected, recentChangedPaths = [], onSelec
               active={selected?.id === district.id}
               nearby={nearby?.id === district.id}
               occluded={isOccludedByBuilding(position, district)}
-              recentChangeCount={recentChangesByDistrict.get(district.path)}
+              recentChangeCount={recentChangesByDistrict.get(district.id)}
               onSelect={onSelect}
             />
           ))}
@@ -168,7 +187,7 @@ export function WorldMap({ districts, selected, recentChangedPaths = [], onSelec
             />
           </div>
           <div className={`proximity-hint${nearby ? ' visible' : ''}`}>
-            {nearby ? <><kbd>E</kbd> EXPLORE {nearby.label}</> : 'FOLLOW THE PATH TO A BUILDING'}
+            {nearby ? <><kbd>E</kbd> {nearby.canEnter ? 'ENTER' : 'EXPLORE'} {nearby.label}</> : 'FOLLOW THE PATH TO A BUILDING'}
           </div>
           <div className="map-hint"><span>WASD / ARROWS</span> WALK <i /> <span>E / ENTER</span> EXPLORE</div>
         </section>

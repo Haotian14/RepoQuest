@@ -28,6 +28,7 @@ function repository(owner: string, name: string): Repository {
     bosses: [],
     warnings: [],
     recentChangedPaths: [],
+    recentFileChanges: {},
   }
 }
 

@@ -1,4 +1,5 @@
-import type { BossEncounter, CommitQuest, RepoFile, Repository } from '../types'
+import type { BossEncounter, CommitQuest, RecentFileChange, RepoFile, Repository } from '../types'
+import { changedLinesFromPatch } from './source'
 
 const GITHUB_REPO = /^([a-z0-9_.-]+)\/([a-z0-9_.-]+?)(?:\.git)?\/?$/i
 
@@ -68,7 +69,13 @@ type GitHubTree = {
 }
 
 type GitHubCommitDetail = {
-  files?: Array<{ filename?: string }>
+  files?: Array<{
+    filename?: string
+    status?: string
+    additions?: number
+    deletions?: number
+    patch?: string
+  }>
 }
 
 const FILE_LIMIT = 3000
@@ -138,6 +145,7 @@ export async function fetchRepository(value: string, signal?: AbortSignal): Prom
       bosses,
       warnings,
       recentChangedPaths: [],
+      recentFileChanges: {},
     }
   }
 
@@ -187,13 +195,22 @@ export async function fetchRepository(value: string, signal?: AbortSignal): Prom
   }
 
   let recentChangedPaths: string[] = []
+  let recentFileChanges: Record<string, RecentFileChange> = {}
   if (commits.length > 0) {
     const detailResponse = await optionalFetch(`${repositoryUrl}/commits/${encodeURIComponent(commits[0].sha)}?per_page=100`)
     if (detailResponse?.ok) {
       const detail = await detailResponse.json() as GitHubCommitDetail
-      recentChangedPaths = (detail.files ?? [])
-        .map((file) => file.filename)
-        .filter((path): path is string => typeof path === 'string')
+      const changedFiles = (detail.files ?? []).filter(
+        (file): file is typeof file & { filename: string } => typeof file.filename === 'string',
+      )
+      recentChangedPaths = changedFiles.map((file) => file.filename)
+      recentFileChanges = Object.fromEntries(changedFiles.map((file) => [file.filename, {
+        path: file.filename,
+        status: file.status ?? 'modified',
+        additions: file.additions ?? 0,
+        deletions: file.deletions ?? 0,
+        changedLines: changedLinesFromPatch(file.patch),
+      }]))
       if (detailResponse.headers.get('link')?.includes('rel="next"')) {
         warnings.push('The latest commit changes more than 100 files; map highlights show a partial list.')
       }
@@ -214,5 +231,6 @@ export async function fetchRepository(value: string, signal?: AbortSignal): Prom
     bosses,
     warnings,
     recentChangedPaths,
+    recentFileChanges,
   }
 }

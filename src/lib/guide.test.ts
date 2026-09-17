@@ -29,4 +29,9 @@ describe('buildDistrictGuide', () => {
     const district = districts[0]
     expect(buildDistrictGuide(district)).toEqual(buildDistrictGuide(district))
   })
+
+  it('recognizes nested district roles from the final folder segment', () => {
+    const components = buildDistricts(demoRepository, 'src').find((district) => district.path === 'src/components')!
+    expect(buildDistrictGuide(components).role).toBe('INTERFACE QUARTER')
+  })
 })

@@ -6,24 +6,39 @@ const POSITIONS = [
   [29, 35], [50, 35], [70, 36], [23, 61], [50, 59], [69, 61], [27, 88], [50, 88], [69, 88],
 ]
 
-export function buildDistricts(repository: Repository): District[] {
-  const grouped = new Map<string, RepoFile[]>()
+export function buildDistricts(repository: Repository, currentPath = ''): District[] {
+  const grouped = new Map<string, { path: string; kind: District['kind']; files: RepoFile[] }>()
+  const prefix = currentPath ? `${currentPath}/` : ''
 
   repository.files.forEach((file) => {
-    const [root] = file.path.split('/')
-    const key = file.path.includes('/') ? root : 'root'
-    grouped.set(key, [...(grouped.get(key) ?? []), file])
+    if (!file.path.startsWith(prefix)) return
+    const relativePath = file.path.slice(prefix.length)
+    if (!relativePath) return
+    const [nextSegment, ...rest] = relativePath.split('/')
+    const kind: District['kind'] = rest.length ? 'directory' : 'files'
+    const path = kind === 'directory' ? `${prefix}${nextSegment}` : (currentPath || 'root')
+    const key = `${kind}:${path}`
+    const group = grouped.get(key) ?? { path, kind, files: [] }
+    group.files.push(file)
+    grouped.set(key, group)
   })
 
   return [...grouped.entries()]
-    .sort(([, a], [, b]) => b.length - a.length)
+    .sort(([, a], [, b]) => b.files.length - a.files.length)
     .slice(0, POSITIONS.length)
-    .map(([path, files], index) => {
+    .map(([, group], index) => {
+      const { files, kind, path } = group
       const totalSize = files.reduce((sum, file) => sum + file.size, 0)
+      const label = kind === 'files'
+        ? (currentPath ? 'Local Files' : 'Town Hall')
+        : path.split('/').pop() ?? path
+      const canEnter = kind === 'directory' && files.some((file) => file.path.slice(path.length + 1).includes('/'))
       return {
-        id: `${path}-${index}`,
-        label: path === 'root' ? 'Town Hall' : path,
+        id: `${currentPath || 'root'}:${path}:${kind}`,
+        label,
         path,
+        kind,
+        canEnter,
         files,
         fileCount: files.length,
         totalSize,
@@ -33,6 +48,16 @@ export function buildDistricts(repository: Repository): District[] {
         level: Math.min(4, Math.max(1, Math.ceil(Math.log2(files.length + 1) / 2))),
       }
     })
+}
+
+export function repositoryTheme(language: string) {
+  const value = language.toLowerCase()
+  if (value.includes('typescript') || value.includes('javascript')) return 'arcane'
+  if (value.includes('python')) return 'forest'
+  if (value.includes('rust') || value.includes('go')) return 'forge'
+  if (value.includes('java') || value.includes('kotlin')) return 'citadel'
+  if (value.includes('html') || value.includes('css') || value.includes('vue')) return 'garden'
+  return 'valley'
 }
 
 export function formatBytes(bytes: number) {

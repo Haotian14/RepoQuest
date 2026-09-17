@@ -9,7 +9,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Planned
 
 - Optional local GitHub token support
-- Source previews from smart-guide routes
+- Dependency graph overlays and side-by-side repository comparison
+
+## [0.4.0] - 2026-09-17
+
+### Added
+
+- In-site source drawer with lightweight syntax highlighting, file metadata, path copying, exact GitHub links, and previous/next route navigation
+- Latest-commit patch parsing with changed-line emphasis inside source previews
+- Multi-level folder maps with full-path breadcrumbs, parent navigation, and nested district generation
+- Language-driven arcane, forest, forge, citadel, garden, and valley biome treatments
+- On-demand local static analysis of manifests, configuration, entry points, imports, and test candidates
+- Browser-local repository snapshots with file, commit, issue, and pull-request deltas
+- Continue-last-exploration navigation across visits
+
+### Changed
+
+- Smart Guide reading routes now use detected entry and test signals when available
+- Nearby files and suggested routes now open the in-site preview before offering the GitHub fallback
+- Repository maps now count recent changes against the visible folder level instead of only the top-level district
+
+### Fixed
+
+- Source preview requests are cancelled when navigating or closing the drawer
+- Binary and oversized files now fail safely to an exact GitHub link
 
 ## [0.3.0] - 2026-09-16
 

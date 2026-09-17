@@ -1,7 +1,7 @@
 import type { Repository } from './types'
 
 const demoPaths = [
-  ['src/components/Map.tsx', 6200], ['src/components/Building.tsx', 4100],
+  ['src/components/WorldMap.tsx', 6200], ['src/components/Building.tsx', 4100],
   ['src/components/Inspector.tsx', 3500], ['src/lib/github.ts', 2800],
   ['src/lib/map.ts', 3100], ['src/App.tsx', 7200], ['src/styles.css', 9800],
   ['public/hero.png', 24000], ['public/favicon.svg', 1800],
@@ -31,4 +31,9 @@ export const demoRepository: Repository = {
   ],
   warnings: [],
   recentChangedPaths: ['src/lib/guide.ts', 'src/components/Inspector.tsx', 'README.md'],
+  recentFileChanges: {
+    'src/lib/guide.ts': { path: 'src/lib/guide.ts', status: 'modified', additions: 18, deletions: 4, changedLines: [14, 15, 28, 29, 30] },
+    'src/components/Inspector.tsx': { path: 'src/components/Inspector.tsx', status: 'modified', additions: 42, deletions: 11, changedLines: [17, 18, 54, 55, 56, 92] },
+    'README.md': { path: 'README.md', status: 'modified', additions: 9, deletions: 2, changedLines: [6, 7, 28] },
+  },
 }

@@ -1,4 +1,5 @@
 import type { District, RepoFile } from '../types'
+import type { RepositoryAnalysis } from './analysis'
 
 export type GuideFile = {
   path: string
@@ -77,7 +78,7 @@ function displayType(type: string) {
   return `.${type}`
 }
 
-function scoreFile(file: RepoFile) {
+function scoreFile(file: RepoFile, analysis?: RepositoryAnalysis) {
   const name = fileName(file.path)
   let score = Math.min(20, Math.log2(file.size + 1) * 1.5)
   if (/^readme(?:\.|$)/i.test(name)) score += 110
@@ -85,6 +86,8 @@ function scoreFile(file: RepoFile) {
   if (ENTRY_NAMES.test(name)) score += 80
   if (CONFIG_NAMES.test(name)) score += 55
   if (TEST_NAMES.test(file.path)) score += 35
+  if (analysis?.entryPoints.includes(file.path)) score += 90
+  if (analysis?.testEntries.includes(file.path)) score += 45
   return score
 }
 
@@ -106,14 +109,15 @@ function formatSize(bytes: number) {
   return `${(bytes / 1024 ** 2).toFixed(1)} MB`
 }
 
-export function buildDistrictGuide(district: District): DistrictGuide {
-  const profile = PROFILES.find((candidate) => candidate.matches(district.path)) ?? {
+export function buildDistrictGuide(district: District, analysis?: RepositoryAnalysis): DistrictGuide {
+  const profilePath = district.path === 'root' ? 'root' : (district.path.split('/').pop() ?? district.path)
+  const profile = PROFILES.find((candidate) => candidate.matches(profilePath)) ?? {
     role: 'FEATURE FRONTIER',
     summary: 'This looks like a focused project module. Find its public entry first, then work inward toward implementation details.',
   }
 
   const rankedFiles = [...district.files]
-    .sort((a, b) => scoreFile(b) - scoreFile(a) || a.path.localeCompare(b.path))
+    .sort((a, b) => scoreFile(b, analysis) - scoreFile(a, analysis) || a.path.localeCompare(b.path))
     .slice(0, 4)
 
   const counts = new Map<string, number>()

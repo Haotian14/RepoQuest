@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { demoRepository } from '../demo'
-import { buildDistricts, formatBytes } from './map'
+import { buildDistricts, formatBytes, repositoryTheme } from './map'
 
 describe('buildDistricts', () => {
   it('groups files into top-level map districts', () => {
@@ -11,6 +11,26 @@ describe('buildDistricts', () => {
 
   it('limits the world to available map slots', () => {
     expect(buildDistricts(demoRepository).length).toBeLessThanOrEqual(9)
+  })
+
+  it('builds the next folder level with full paths and a local-files landmark', () => {
+    const districts = buildDistricts(demoRepository, 'src')
+    expect(districts.find((district) => district.path === 'src/components')).toMatchObject({
+      label: 'components',
+      kind: 'directory',
+      fileCount: 3,
+    })
+    expect(districts.find((district) => district.path === 'src')).toMatchObject({
+      label: 'Local Files',
+      kind: 'files',
+      fileCount: 2,
+    })
+  })
+
+  it('selects a distinct biome from the repository language', () => {
+    expect(repositoryTheme('TypeScript')).toBe('arcane')
+    expect(repositoryTheme('Python')).toBe('forest')
+    expect(repositoryTheme('Rust')).toBe('forge')
   })
 })
 
