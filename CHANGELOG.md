@@ -22,6 +22,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - On-demand local static analysis of manifests, configuration, entry points, imports, and test candidates
 - Browser-local repository snapshots with file, commit, issue, and pull-request deltas
 - Continue-last-exploration navigation across visits
+- A 20-second product walkthrough, real interface screenshots, architecture diagram, and GitHub social-preview artwork
 
 ### Changed
 
