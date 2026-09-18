@@ -12,9 +12,9 @@
 
 </div>
 
-![RepoQuest valley key art](./src/assets/generated/repoquest-valley-hero.webp)
+![20-second RepoQuest walkthrough showing repository search, the explorable map, and in-site source preview](./docs/images/demo.gif)
 
-<p align="center"><em>RepoQuest project key art. Open the live demo above to see the interactive interface.</em></p>
+<p align="center"><em>Search a public repository, walk through its folders, and read source without leaving the world.</em></p>
 
 RepoQuest transforms the structure of a public GitHub repository into a playful 2D map. Folders become districts, files become places, and the size of each district reflects the amount of code it contains. A built-in demo world is available immediately; enter `owner/repository` to explore another public project.
 
@@ -34,6 +34,14 @@ RepoQuest transforms the structure of a public GitHub repository into a playful 
 - Use a responsive interface on desktop and mobile
 - Run without a backend or server-side storage; recent history and progress stay on this device
 
+## Screenshots
+
+| Repository map | Source preview |
+| --- | --- |
+| ![RepoQuest desktop repository map](./docs/images/desktop-map.jpg) | ![RepoQuest in-site source preview](./docs/images/source-preview.jpg) |
+
+The interface reflows for smaller screens and keeps touch controls visible while exploring the map. Open the [live demo](https://haotian14.github.io/RepoQuest/) on a phone to try the responsive layout.
+
 ## Quick start
 
 ### Requirements
@@ -52,16 +60,12 @@ Open `http://localhost:5173` and enter a repository as either `owner/repository`
 
 ## How it works
 
-```text
-Public GitHub REST API
-        ↓
-Repository metadata, recursive tree, commits, issues and pull requests
-        ↓
-Normalization and deterministic district generation
-        ↓
-React world map, inspector, quests, boss arena and smart guide
-        ↓
-Local device progress and client-side PNG export
+```mermaid
+flowchart TD
+    A[Public GitHub REST API] --> B[Repository data]
+    B --> C[Normalization and map generation]
+    C --> D[React exploration interface]
+    D --> E[Local progress and PNG export]
 ```
 
 1. RepoQuest requests public repository metadata directly from the browser.
@@ -108,6 +112,8 @@ Local device progress and client-side PNG export
 | `src/assets` | Generated project artwork and attributed LPC game assets |
 | `src/test` | Shared Vitest and Testing Library setup |
 | `.github/workflows` | Continuous integration and GitHub Pages deployment |
+| `docs/images` | README screenshots, demo GIF, and social preview artwork |
+| `scripts` | Reproducible showcase-asset generation |
 
 ## Roadmap
 
