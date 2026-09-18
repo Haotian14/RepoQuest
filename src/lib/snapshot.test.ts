@@ -35,4 +35,19 @@ describe('repository snapshots', () => {
       mapPath: 'src/components', selectedPath: 'src/components', selectedKind: 'files',
     })
   })
+
+  it('handles invalid JSON, version mismatch, or corrupted snapshot data gracefully', () => {
+    const snapshotKey = `repoquest:snapshot:${demoRepository.id}`
+
+    expect(loadRepositorySnapshot(demoRepository)).toBeUndefined()
+
+    localStorage.setItem(snapshotKey, '{ corrupted_json: ')
+    expect(loadRepositorySnapshot(demoRepository)).toBeUndefined()
+
+    localStorage.setItem(snapshotKey, JSON.stringify({ version: 999, files: [] }))
+    expect(loadRepositorySnapshot(demoRepository)).toBeUndefined()
+
+    localStorage.setItem(snapshotKey, JSON.stringify({ version: 1, files: 'not-an-array' }))
+    expect(loadRepositorySnapshot(demoRepository)).toBeUndefined()
+  })
 })
